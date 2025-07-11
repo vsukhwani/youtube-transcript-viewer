@@ -1,5 +1,5 @@
 {
-  "name": "yt-transcript-viewer-vsukhwani",
+  "name": "transcript-viewer-vs2025",
   "version": "1.0.0",
   "description": "A modern web application for fetching and displaying YouTube video transcripts with multi-language support",
   "main": "frontend/index.html",

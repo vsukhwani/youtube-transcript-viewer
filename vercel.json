@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "yt-transcript-viewer-vsukhwani",
+  "name": "transcript-viewer-vs2025",
   "routes": [
     {
       "src": "/api/transcript",
