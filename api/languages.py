@@ -5,12 +5,24 @@ import urllib.parse
 try:
     from youtube_transcript_api import YouTubeTranscriptApi
     from youtube_transcript_api._errors import TranscriptsDisabled, NoTranscriptFound, VideoUnavailable
-except ImportError:
-    # Fallback if the package is not available
+    YOUTUBE_API_AVAILABLE = True
+except ImportError as e:
+    print(f"Import error: {e}")
+    YOUTUBE_API_AVAILABLE = False
+    # Create dummy classes
     class YouTubeTranscriptApi:
         @staticmethod
         def list_transcripts(*args, **kwargs):
-            raise Exception("youtube-transcript-api not available")
+            raise Exception("youtube-transcript-api not available in this environment")
+    
+    class TranscriptsDisabled(Exception):
+        pass
+    
+    class NoTranscriptFound(Exception):
+        pass
+    
+    class VideoUnavailable(Exception):
+        pass
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -27,6 +39,11 @@ class handler(BaseHTTPRequestHandler):
     def _handle_request(self):
         # Always set CORS headers first
         self._send_cors_headers()
+        
+        # Check if YouTube API is available
+        if not YOUTUBE_API_AVAILABLE:
+            self._send_error(500, "YouTube transcript API is not available in this environment")
+            return
         
         try:
             # Parse the URL

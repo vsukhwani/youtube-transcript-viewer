@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>YouTube Transcript API Test</h1>
+    
+    <h2>Test 1: Languages API</h2>
+    <button onclick="testLanguagesAPI()">Test Languages API</button>
+    <div id="languages-result"></div>
+    
+    <h2>Test 2: Transcript API</h2>
+    <input type="text" id="video-url" placeholder="YouTube URL" value="https://www.youtube.com/watch?v=SFnMTHhKdkw" style="width: 400px;">
+    <button onclick="testTranscriptAPI()">Test Transcript API</button>
+    <div id="transcript-result"></div>
+
+    <script>
+        const API_BASE = 'https://transcript-viewer-vs2025.vercel.app/api';
+        
+        async function testLanguagesAPI() {
+            const resultDiv = document.getElementById('languages-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/languages?url=https://www.youtube.com/watch?v=SFnMTHhKdkw`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `<strong>Status:</strong> ${response.status}<br><strong>Response:</strong> <pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+            }
+        }
+        
+        async function testTranscriptAPI() {
+            const resultDiv = document.getElementById('transcript-result');
+            const videoUrl = document.getElementById('video-url').value;
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/transcript`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: videoUrl,
+                        language: 'en'
+                    })
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `<strong>Status:</strong> ${response.status}<br><strong>Response:</strong> <pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
