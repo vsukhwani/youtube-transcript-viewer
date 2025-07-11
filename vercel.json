@@ -1,31 +1,20 @@
 {
   "version": 2,
   "name": "yt-transcript-viewer-vsukhwani",
-  "builds": [
-    {
-      "src": "backend/server.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "frontend/**/*",
-      "use": "@vercel/static"
-    }
-  ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "backend/server.py"
+      "src": "/api/transcript",
+      "dest": "/api/transcript.py"
+    },
+    {
+      "src": "/api/languages", 
+      "dest": "/api/languages.py"
     },
     {
       "src": "/(.*)",
-      "dest": "frontend/$1"
+      "dest": "/frontend/$1"
     }
   ],
-  "functions": {
-    "backend/server.py": {
-      "runtime": "python3.9"
-    }
-  },
   "env": {
     "ENVIRONMENT": "production"
   }
