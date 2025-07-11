@@ -5,8 +5,7 @@
   "main": "frontend/index.html",
   "scripts": {
     "start": "python backend/server.py",
-    "dev": "python backend/server.py",
-    "build": "echo 'Static frontend - no build required'"
+    "dev": "python backend/server.py"
   },
   "keywords": [
     "youtube",

@@ -1,6 +1,8 @@
 {
   "version": 2,
   "name": "transcript-viewer-vs2025",
+  "buildCommand": "echo 'No build required for static frontend'",
+  "outputDirectory": "frontend",
   "routes": [
     {
       "src": "/api/transcript",
