@@ -2,13 +2,15 @@ from http.server import BaseHTTPRequestHandler
 import json
 import urllib.parse
 
+# Test import first
 try:
     from youtube_transcript_api import YouTubeTranscriptApi
     from youtube_transcript_api._errors import TranscriptsDisabled, NoTranscriptFound, VideoUnavailable
-    YOUTUBE_API_AVAILABLE = True
+    IMPORT_SUCCESS = True
+    IMPORT_ERROR = None
 except ImportError as e:
-    print(f"Import error: {e}")
-    YOUTUBE_API_AVAILABLE = False
+    IMPORT_SUCCESS = False
+    IMPORT_ERROR = str(e)
     # Create dummy classes
     class YouTubeTranscriptApi:
         @staticmethod
@@ -39,6 +41,11 @@ class handler(BaseHTTPRequestHandler):
     def _handle_request(self):
         # Always set CORS headers first
         self._send_cors_headers()
+        
+        # Check if imports worked
+        if not IMPORT_SUCCESS:
+            self._send_error(500, f"Import failed: {IMPORT_ERROR}")
+            return
         
         try:
             # Parse the URL
