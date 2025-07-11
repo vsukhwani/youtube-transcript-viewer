@@ -1,13 +1,7 @@
 {
   "version": 2,
   "name": "transcript-viewer-vs2025",
-  "buildCommand": "echo 'No build required for static frontend'",
   "outputDirectory": "frontend",
-  "functions": {
-    "api/*.py": {
-      "runtime": "@vercel/python@4.2.0"
-    }
-  },
   "routes": [
     {
       "src": "/api/transcript",
@@ -21,8 +15,5 @@
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }
-  ],
-  "env": {
-    "ENVIRONMENT": "production"
-  }
+  ]
 }
