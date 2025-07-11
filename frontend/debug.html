@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug YouTube Transcript</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+        .loading { color: blue; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>YouTube Transcript API Debug</h1>
+    
+    <button onclick="testAPI()">Test API Direct</button>
+    <button onclick="testLanguages()">Test Languages API</button>
+    
+    <div id="result"></div>
+
+    <script>
+        const CONFIG = {
+            apiUrl: 'http://127.0.0.1:3002/api/transcript',
+            languagesApiUrl: 'http://127.0.0.1:3002/api/languages',
+            apiKey: 'dev_api_key_1234567890'
+        };
+
+        function log(message, type = 'info') {
+            const result = document.getElementById('result');
+            const timestamp = new Date().toLocaleTimeString();
+            result.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+            console.log(message);
+        }
+
+        async function testAPI() {
+            log('Starting API test...', 'loading');
+            
+            try {
+                const response = await fetch(CONFIG.apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': CONFIG.apiKey
+                    },
+                    body: JSON.stringify({
+                        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+                    })
+                });
+
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`Transcript received, length: ${data.transcript.length}`, 'success');
+                    log(`First 100 chars: ${data.transcript.substring(0, 100)}...`, 'success');
+                } else {
+                    const errorData = await response.text();
+                    log(`Error response: ${errorData}`, 'error');
+                }
+            } catch (error) {
+                log(`Fetch error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLanguages() {
+            log('Starting Languages API test...', 'loading');
+            
+            try {
+                const url = `${CONFIG.languagesApiUrl}?url=${encodeURIComponent('https://www.youtube.com/watch?v=dQw4w9WgXcQ')}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-API-Key': CONFIG.apiKey
+                    }
+                });
+
+                log(`Languages response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`Languages received: ${JSON.stringify(data.languages)}`, 'success');
+                } else {
+                    const errorData = await response.text();
+                    log(`Languages error: ${errorData}`, 'error');
+                }
+            } catch (error) {
+                log(`Languages fetch error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

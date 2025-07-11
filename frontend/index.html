@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Transcript Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1><i class="fab fa-youtube"></i> YouTube Transcript Viewer</h1>
+            <p class="subtitle">Get and read video transcripts in a clean, readable format</p>
+        </header>
+
+        <main>
+            <section class="input-section">
+                <div class="url-form">
+                    <div class="input-group">
+                        <input type="text" id="youtube-url" placeholder="Paste YouTube URL here..." autofocus>
+                        <button id="get-transcript-btn" class="primary-btn">
+                            <i class="fas fa-closed-captioning"></i> Get Transcript
+                        </button>
+                    </div>
+                    <div class="language-selection hidden" id="language-selection">
+                        <div class="language-selector">
+                            <label for="language-select">Language:</label>
+                            <select id="language-select" disabled>
+                                <option value="">Loading languages...</option>
+                            </select>
+                        </div>
+                        <button id="change-language-btn" class="secondary-btn" disabled>
+                            <i class="fas fa-language"></i> Get Language Transcript
+                        </button>
+                    </div>
+                    <div class="example">
+                        <span>Example: https://www.youtube.com/watch?v=dQw4w9WgXcQ</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="transcript-section">
+                <div id="loading" class="hidden">
+                    <div class="spinner"></div>
+                    <p>Fetching transcript...</p>
+                </div>
+
+                <div id="error-message" class="hidden">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p id="error-text"></p>
+                </div>
+
+                <div id="transcript-container" class="hidden">
+                    <div class="transcript-controls">
+                        <div class="control-group">
+                            <button id="copy-btn" class="control-btn" title="Copy transcript">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button id="download-btn" class="control-btn" title="Download transcript">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                            <div class="font-size-control">
+                                <label for="font-size">Font Size:</label>
+                                <select id="font-size">
+                                    <option value="small">Small</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="large">Large</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="language-selection-container" id="transcript-language-selection">
+                            <!-- Language selection will be moved here when transcript is displayed -->
+                        </div>
+                    </div>
+                    <div id="transcript-content" class="content-area"></div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2025 YouTube Transcript Viewer</p>
+        </footer>
+    </div>
+
+    <div id="copy-notification" class="hidden">
+        <i class="fas fa-check-circle"></i> Copied to clipboard!
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js" defer></script>
+</body>
+</html>
