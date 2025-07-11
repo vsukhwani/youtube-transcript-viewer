@@ -1,13 +1,6 @@
 from http.server import BaseHTTPRequestHandler
 import json
 import urllib.parse
-import os
-import sys
-
-# Add the parent directory to the path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, os.path.join(parent_dir, 'backend'))
 
 try:
     from youtube_transcript_api import YouTubeTranscriptApi
@@ -28,23 +21,27 @@ class handler(BaseHTTPRequestHandler):
     
     def do_OPTIONS(self):
         self._send_cors_headers()
+        self.send_response(200)
         self.end_headers()
     
     def _handle_request(self):
+        # Always set CORS headers first
+        self._send_cors_headers()
+        
         try:
-            # Set CORS headers first
-            self._send_cors_headers()
-            
             # Parse the URL
             parsed_path = urllib.parse.urlparse(self.path)
             query_params = urllib.parse.parse_qs(parsed_path.query)
             
             # Get POST data if available
             content_length = int(self.headers.get('Content-Length', 0))
+            post_data = {}
             if content_length > 0:
-                post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
-            else:
-                post_data = {}
+                try:
+                    post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
+                except json.JSONDecodeError:
+                    self._send_error(400, 'Invalid JSON in request body')
+                    return
             
             # Extract parameters
             url = post_data.get('url') or (query_params.get('url', [''])[0])
@@ -74,13 +71,9 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps(response).encode())
             
-        except json.JSONDecodeError as e:
-            print(f"JSON decode error: {e}")
-            self._send_error(400, 'Invalid JSON in request body')
         except Exception as e:
-            print(f"Unexpected error: {e}")
-            # Ensure we always return JSON, never HTML
-            self._send_error(500, f"Server error: {str(e)}")
+            print(f"Error in transcript API: {e}")
+            self._send_error(500, str(e))
     
     
     def _extract_video_id(self, url):
@@ -125,9 +118,19 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, Origin, Referer')
     
     def _send_error(self, code, message):
-        self.send_response(code)
-        self._send_cors_headers()  # Ensure CORS headers are included in error responses
-        self.send_header('Content-Type', 'application/json')
-        self.end_headers()
-        error_response = {'error': message, 'detail': message}
-        self.wfile.write(json.dumps(error_response).encode())
+        try:
+            self.send_response(code)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            error_response = {'error': message, 'detail': message}
+            self.wfile.write(json.dumps(error_response).encode())
+        except Exception as e:
+            print(f"Error sending error response: {e}")
+            # Last resort - send minimal response
+            try:
+                self.send_response(500)
+                self.send_header('Content-Type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(b'Internal Server Error')
+            except:
+                pass
