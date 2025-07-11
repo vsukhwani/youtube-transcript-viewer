@@ -32,12 +32,12 @@ class handler(BaseHTTPRequestHandler):
     
     def _handle_request(self):
         try:
+            # Set CORS headers first
+            self._send_cors_headers()
+            
             # Parse the URL
             parsed_path = urllib.parse.urlparse(self.path)
             query_params = urllib.parse.parse_qs(parsed_path.query)
-            
-            # Set CORS headers
-            self._send_cors_headers()
             
             # Get POST data if available
             content_length = int(self.headers.get('Content-Length', 0))
@@ -72,9 +72,13 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps(response).encode())
             
+        except json.JSONDecodeError as e:
+            print(f"JSON decode error: {e}")
+            self._send_error(400, 'Invalid JSON in request body')
         except Exception as e:
-            print(f"Error: {e}")
-            self._send_error(500, str(e))
+            print(f"Unexpected error: {e}")
+            # Ensure we always return JSON, never HTML
+            self._send_error(500, f"Server error: {str(e)}")
     
     def _extract_video_id(self, url):
         """Extract video ID from YouTube URL"""
@@ -116,6 +120,7 @@ class handler(BaseHTTPRequestHandler):
     
     def _send_error(self, code, message):
         self.send_response(code)
+        self._send_cors_headers()  # Ensure CORS headers are included in error responses
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
         error_response = {'error': message, 'detail': message}

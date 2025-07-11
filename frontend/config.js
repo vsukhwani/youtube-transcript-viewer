@@ -33,12 +33,13 @@ window.CONFIG = {
     
     // API key for backend authentication
     apiKey: (() => {
-        // Use production API key for deployed version
+        // For production (Vercel), the API functions don't require API key validation
+        // since they're serverless functions
         if (window.location.hostname.includes('vercel.app') || 
             (window.location.hostname !== 'localhost' && 
              window.location.hostname !== '127.0.0.1' && 
              window.location.protocol !== 'file:')) {
-            return 'production_api_key_will_be_set_via_env';
+            return 'vercel-production-key';
         }
         // Use development API key for local development
         return 'dev_api_key_1234567890';
