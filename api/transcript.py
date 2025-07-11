@@ -40,11 +40,6 @@ class handler(BaseHTTPRequestHandler):
         # Always set CORS headers first
         self._send_cors_headers()
         
-        # Check if YouTube API is available
-        if not YOUTUBE_API_AVAILABLE:
-            self._send_error(500, "YouTube transcript API is not available in this environment")
-            return
-        
         try:
             # Parse the URL
             parsed_path = urllib.parse.urlparse(self.path)
