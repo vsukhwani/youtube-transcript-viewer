@@ -1,15 +1,19 @@
 {
   "version": 2,
-  "name": "transcript-viewer-vs2025",
-  "outputDirectory": "frontend",
-  "routes": [
+  "builds": [
     {
-      "src": "/api/transcript",
-      "dest": "/api/transcript.py"
+      "src": "frontend/**/*",
+      "use": "@vercel/static"
     },
     {
-      "src": "/api/languages", 
-      "dest": "/api/languages.py"
+      "src": "api/*.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
     },
     {
       "src": "/(.*)",
