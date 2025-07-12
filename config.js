@@ -11,7 +11,7 @@ window.CONFIG = {
             return 'http://127.0.0.1:3002/api/transcript';
         }
         // If running on Vercel or other server, use relative paths
-        return '/api/transcript';
+        return '/api/transcript_v2';
     })(),
     
     languagesApiUrl: (() => {

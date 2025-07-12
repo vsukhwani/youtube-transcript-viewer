@@ -3,9 +3,46 @@ import json
 import urllib.parse
 import os
 
+# Simple security configuration
+REQUIRE_API_KEY = os.environ.get('REQUIRE_API_KEY', 'false').lower() == 'true'
+VALID_API_KEYS = [
+    os.environ.get('API_KEY', 'vercel-production-key'),  # For production
+    'dev_api_key_1234567890',  # For development
+    'vercel-production-key'    # Default for testing
+]
+
 class handler(BaseHTTPRequestHandler):
+    def _validate_access(self):
+        """Simple access validation"""
+        if not REQUIRE_API_KEY:
+            return True
+        
+        # Check for API key in headers
+        api_key = self.headers.get('X-API-Key')
+        if api_key and api_key in VALID_API_KEYS:
+            return True
+        
+        # Check for API key in Authorization header
+        auth_header = self.headers.get('Authorization', '')
+        if auth_header.startswith('Bearer '):
+            token = auth_header[7:]
+            if token in VALID_API_KEYS:
+                return True
+        
+        return False
+    
     def do_GET(self):
         try:
+            # Validate access first
+            if not self._validate_access():
+                self.send_response(401)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                error_response = {'error': 'Unauthorized: Invalid or missing API key', 'status': 'error'}
+                self.wfile.write(json.dumps(error_response).encode())
+                return
+            
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
@@ -71,6 +108,16 @@ class handler(BaseHTTPRequestHandler):
     
     def do_POST(self):
         try:
+            # Validate access first
+            if not self._validate_access():
+                self.send_response(401)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                error_response = {'error': 'Unauthorized: Invalid or missing API key', 'status': 'error'}
+                self.wfile.write(json.dumps(error_response).encode())
+                return
+            
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
