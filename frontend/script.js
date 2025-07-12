@@ -407,7 +407,7 @@ async function fetchAvailableLanguages(url) {
         const data = await response.json();
         console.log('🔍 Languages API response data:', data);
         
-        // Handle both success and fallback responses
+        // Handle different response statuses
         if (data.status === 'success' || data.status === 'fallback') {
             const languages = data.languages || [];
             
@@ -436,6 +436,30 @@ async function fetchAvailableLanguages(url) {
             }
             
             return languages;
+        } else if (data.status === 'no_transcripts') {
+            // Video has no transcripts available
+            console.log('ℹ️ No transcripts available for this video:', data.note);
+            
+            // Show an informative message to the user
+            const resultDiv = document.getElementById('transcript-result');
+            if (resultDiv) {
+                resultDiv.innerHTML = `
+                    <div class="error-message">
+                        <h3>No Transcripts Available</h3>
+                        <p>${data.note || 'This video does not have any transcripts or subtitles available.'}</p>
+                        <p>This could be because:</p>
+                        <ul>
+                            <li>The video creator disabled captions</li>
+                            <li>No auto-generated captions are available</li>
+                            <li>The video is too new and captions haven't been processed yet</li>
+                        </ul>
+                        <p>Try a different video that has captions enabled.</p>
+                    </div>
+                `;
+            }
+            
+            hideLanguageSelection();
+            return [];
         } else {
             // Error response
             console.error('❌ Languages API error:', data.error);

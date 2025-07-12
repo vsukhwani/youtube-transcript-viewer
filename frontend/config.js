@@ -16,12 +16,12 @@ window.CONFIG = {
     
     languagesApiUrl: (() => {
         if (window.location.protocol === 'file:') {
-            return 'http://127.0.0.1:3002/api/languages_v3';
+            return 'http://127.0.0.1:3002/api/languages_v4';
         }
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'http://127.0.0.1:3002/api/languages_v3';
+            return 'http://127.0.0.1:3002/api/languages_v4';
         }
-        return '/api/languages_v3';
+        return '/api/languages_v4';
     })(),
     
     // App settings
