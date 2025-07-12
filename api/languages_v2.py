@@ -55,11 +55,25 @@ class handler(BaseHTTPRequestHandler):
                 }
                 
             except Exception as e:
-                response = {
-                    'error': f'Failed to get languages: {str(e)}',
-                    'video_id': video_id if 'video_id' in locals() else 'unknown',
-                    'status': 'error'
-                }
+                # If listing fails, try to provide a default language option
+                error_msg = str(e)
+                if "Could not retrieve a transcript" in error_msg:
+                    # Provide common language options as fallback
+                    response = {
+                        'languages': [
+                            {'language_code': 'en', 'language': 'English', 'is_generated': True, 'is_translatable': False},
+                            {'language_code': 'auto', 'language': 'Auto-detect', 'is_generated': True, 'is_translatable': False}
+                        ],
+                        'video_id': video_id,
+                        'status': 'fallback',
+                        'note': 'Could not list languages, providing common options. Try getting transcript directly.'
+                    }
+                else:
+                    response = {
+                        'error': f'Failed to get languages: {error_msg}',
+                        'video_id': video_id if 'video_id' in locals() else 'unknown',
+                        'status': 'error'
+                    }
             
             self.wfile.write(json.dumps(response).encode())
             
@@ -132,11 +146,25 @@ class handler(BaseHTTPRequestHandler):
                 }
                 
             except Exception as e:
-                response = {
-                    'error': f'Failed to get languages: {str(e)}',
-                    'video_id': video_id if 'video_id' in locals() else 'unknown',
-                    'status': 'error'
-                }
+                # If listing fails, try to provide a default language option
+                error_msg = str(e)
+                if "Could not retrieve a transcript" in error_msg:
+                    # Provide common language options as fallback
+                    response = {
+                        'languages': [
+                            {'language_code': 'en', 'language': 'English', 'is_generated': True, 'is_translatable': False},
+                            {'language_code': 'auto', 'language': 'Auto-detect', 'is_generated': True, 'is_translatable': False}
+                        ],
+                        'video_id': video_id,
+                        'status': 'fallback',
+                        'note': 'Could not list languages, providing common options. Try getting transcript directly.'
+                    }
+                else:
+                    response = {
+                        'error': f'Failed to get languages: {error_msg}',
+                        'video_id': video_id if 'video_id' in locals() else 'unknown',
+                        'status': 'error'
+                    }
             
             self.wfile.write(json.dumps(response).encode())
             
