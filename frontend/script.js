@@ -337,8 +337,7 @@ async function fetchTranscript(url, language = null) {
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-API-Key': CONFIG.apiKey
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload),
         });
@@ -392,7 +391,7 @@ async function fetchAvailableLanguages(url) {
         const response = await fetch(apiUrl, {
             method: 'GET',
             headers: {
-                'X-API-Key': CONFIG.apiKey
+                'Content-Type': 'application/json'
             }
         });
         
@@ -406,28 +405,43 @@ async function fetchAvailableLanguages(url) {
         }
         
         const data = await response.json();
-        const languages = data.languages || [];
+        console.log('🔍 Languages API response data:', data);
         
-        console.log('🔍 Available languages:', languages);
-        console.log('🔍 Number of languages:', languages.length);
-        
-        if (languages.length > 1) {
-            // Multiple languages - show selection UI
-            console.log('🔍 Multiple languages found, showing selection UI');
-            populateLanguageDropdown(languages);
-            showLanguageSelection();
-        } else if (languages.length === 1) {
-            // Single language - no need for selection UI
-            console.log('🔍 Single language found, hiding selection UI');
-            currentLanguage = languages[0].code;
-            hideLanguageSelection();
+        // Handle both success and fallback responses
+        if (data.status === 'success' || data.status === 'fallback') {
+            const languages = data.languages || [];
+            
+            // Show note if it's a fallback response
+            if (data.status === 'fallback' && data.note) {
+                console.log('ℹ️ Languages fallback:', data.note);
+            }
+            
+            console.log('🔍 Available languages:', languages);
+            console.log('🔍 Number of languages:', languages.length);
+            
+            if (languages.length > 1) {
+                // Multiple languages - show selection UI
+                console.log('🔍 Multiple languages found, showing selection UI');
+                populateLanguageDropdown(languages);
+                showLanguageSelection();
+            } else if (languages.length === 1) {
+                // Single language - no need for selection UI
+                console.log('🔍 Single language found, hiding selection UI');
+                currentLanguage = languages[0].language_code;
+                hideLanguageSelection();
+            } else {
+                // No languages available
+                console.log('🔍 No languages found, hiding selection UI');
+                hideLanguageSelection();
+            }
+            
+            return languages;
         } else {
-            // No languages available
-            console.log('🔍 No languages found, hiding selection UI');
-            hideLanguageSelection();
+            // Error response
+            console.error('❌ Languages API error:', data.error);
+            resetLanguageSelection();
+            return [];
         }
-        
-        return languages;
     } catch (error) {
         if (CONFIG.debug) {
             console.error('Error fetching languages:', error);
@@ -528,7 +542,7 @@ function populateLanguageDropdown(languages) {
     languageSelect.appendChild(defaultOption);
     
     // Sort languages by name
-    languages.sort((a, b) => a.name.localeCompare(b.name));
+    languages.sort((a, b) => a.language.localeCompare(b.language));
     
     // Track if we have at least one language to select by default
     let firstLanguageCode = null;
@@ -536,20 +550,20 @@ function populateLanguageDropdown(languages) {
     // Add language options
     languages.forEach((lang, index) => {
         const option = document.createElement('option');
-        option.value = lang.code;
+        option.value = lang.language_code;
         
-        // Mark manual transcripts with a star
-        const isManual = lang.type === 'manual';
-        option.textContent = isManual ? `${lang.name} ★` : lang.name;
+        // Mark manual transcripts with a star (non-generated)
+        const isManual = !lang.is_generated;
+        option.textContent = isManual ? `${lang.language} ★` : lang.language;
         
         // Mark auto-generated transcripts with a class for styling
-        if (!isManual) {
+        if (lang.is_generated) {
             option.classList.add('auto-generated');
         }
         
         // Remember the first language code
         if (index === 0) {
-            firstLanguageCode = lang.code;
+            firstLanguageCode = lang.language_code;
         }
         
         languageSelect.appendChild(option);
@@ -559,7 +573,7 @@ function populateLanguageDropdown(languages) {
     languageSelect.disabled = false;
     
     // Select the current language if it exists and is available, otherwise select the first language
-    if (currentLanguage && languages.some(lang => lang.code === currentLanguage)) {
+    if (currentLanguage && languages.some(lang => lang.language_code === currentLanguage)) {
         languageSelect.value = currentLanguage;
         changeLanguageBtn.disabled = false;
         console.log('🔍 Language dropdown set to current language:', currentLanguage);

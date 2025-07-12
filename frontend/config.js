@@ -4,24 +4,24 @@ window.CONFIG = {
     apiUrl: (() => {
         // If accessing via file:// protocol (static website), use localhost backend
         if (window.location.protocol === 'file:') {
-            return 'http://127.0.0.1:3002/api/transcript';
+            return 'http://127.0.0.1:3002/api/transcript_v2';
         }
         // If running on localhost (development)
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'http://127.0.0.1:3002/api/transcript';
+            return 'http://127.0.0.1:3002/api/transcript_v2';
         }
         // If running on Vercel or other server, use relative paths
-        return '/api/transcript';
+        return '/api/transcript_v2';
     })(),
     
     languagesApiUrl: (() => {
         if (window.location.protocol === 'file:') {
-            return 'http://127.0.0.1:3002/api/languages';
+            return 'http://127.0.0.1:3002/api/languages_v3';
         }
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'http://127.0.0.1:3002/api/languages';
+            return 'http://127.0.0.1:3002/api/languages_v3';
         }
-        return '/api/languages';
+        return '/api/languages_v3';
     })(),
     
     // App settings
