@@ -33,16 +33,6 @@ class handler(BaseHTTPRequestHandler):
     
     def do_GET(self):
         try:
-            # Validate access first
-            if not self._validate_access():
-                self.send_response(401)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.end_headers()
-                error_response = {'error': 'Unauthorized: Invalid or missing API key', 'status': 'error'}
-                self.wfile.write(json.dumps(error_response).encode())
-                return
-            
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
@@ -108,16 +98,6 @@ class handler(BaseHTTPRequestHandler):
     
     def do_POST(self):
         try:
-            # Validate access first
-            if not self._validate_access():
-                self.send_response(401)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.end_headers()
-                error_response = {'error': 'Unauthorized: Invalid or missing API key', 'status': 'error'}
-                self.wfile.write(json.dumps(error_response).encode())
-                return
-            
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
