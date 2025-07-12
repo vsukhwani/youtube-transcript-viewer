@@ -1,6 +1,24 @@
-# Frontend - YouTube Transcript Viewer
+# YouTube Transcript Viewer
 
-**Static webpage** for the YouTube Transcript Viewer application. No server required!
+A modern web application for extracting and viewing YouTube video transcripts. **Now live on Vercel!**
+
+🌐 **Live Demo**: https://transcript-viewer-vs2025.vercel.app
+
+## 🎯 Quick Start
+
+1. Visit the live app: https://transcript-viewer-vs2025.vercel.app
+2. Paste any YouTube URL with captions/subtitles
+3. View and download the transcript instantly!
+
+## ✅ Test Videos (Known to Work)
+
+Try these URLs to test the application:
+
+- **PSY - Gangnam Style**: `https://www.youtube.com/watch?v=9bZkp7q19f0`
+- **Luis Fonsi - Despacito**: `https://www.youtube.com/watch?v=kJQP7kiw5Fk`
+- **Steve Jobs Stanford Speech**: `https://www.youtube.com/watch?v=UF8uR6Z6KLc`
+
+📋 [View more test videos](https://transcript-viewer-vs2025.vercel.app/test-videos.html)
 
 ## Features
 
@@ -11,6 +29,7 @@
 - **📱 Responsive Design**: Works seamlessly on desktop and mobile
 - **♿ Accessibility**: Keyboard navigation and screen reader friendly
 - **🔤 Font Controls**: Adjustable font sizes for better readability
+- **☁️ Vercel Deployment**: Serverless Python API with static frontend
 
 ## Files
 
