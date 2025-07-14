@@ -362,9 +362,20 @@ async function fetchTranscript(url, language = null) {
         
         const data = await response.json();
         if (CONFIG.debug) {
-            console.log('Transcript received, length:', data.transcript.length);
+            console.log('Transcript API response data:', data);
         }
         
+        // Handle different API statuses
+        if (data.status === 'no_transcripts') {
+            // Surface the no transcripts error to UI
+            throw data;
+        }
+        if (data.status !== 'success') {
+            // Any other error status
+            throw data;
+        }
+        
+        // At this point, we have a successful transcript
         // Update current language if specified
         if (language) {
             currentLanguage = language;

@@ -76,11 +76,22 @@ class handler(BaseHTTPRequestHandler):
                 }
                 
             except Exception as e:
-                response = {
-                    'error': f'Failed to get transcript: {str(e)}',
-                    'video_id': video_id if 'video_id' in locals() else 'unknown',
-                    'status': 'error'
-                }
+                # Classify missing transcript errors (case-insensitive match)
+                err_str = str(e)
+                err_lower = err_str.lower()
+                if 'could not retrieve a transcript' in err_lower or 'subtitles are disabled' in err_lower:
+                    # No transcripts available for this video
+                    response = {
+                        'error': err_str,
+                        'video_id': video_id if 'video_id' in locals() else 'unknown',
+                        'status': 'no_transcripts'
+                    }
+                else:
+                    response = {
+                        'error': f'Failed to get transcript: {err_str}',
+                        'video_id': video_id if 'video_id' in locals() else 'unknown',
+                        'status': 'error'
+                    }
             
             self.wfile.write(json.dumps(response).encode())
             
@@ -151,11 +162,22 @@ class handler(BaseHTTPRequestHandler):
                 }
                 
             except Exception as e:
-                response = {
-                    'error': f'Failed to get transcript: {str(e)}',
-                    'video_id': video_id if 'video_id' in locals() else 'unknown',
-                    'status': 'error'
-                }
+                # Classify missing transcript errors (case-insensitive match)
+                err_str = str(e)
+                err_lower = err_str.lower()
+                if 'could not retrieve a transcript' in err_lower or 'subtitles are disabled' in err_lower:
+                    # No transcripts available for this video
+                    response = {
+                        'error': err_str,
+                        'video_id': video_id if 'video_id' in locals() else 'unknown',
+                        'status': 'no_transcripts'
+                    }
+                else:
+                    response = {
+                        'error': f'Failed to get transcript: {err_str}',
+                        'video_id': video_id if 'video_id' in locals() else 'unknown',
+                        'status': 'error'
+                    }
             
             self.wfile.write(json.dumps(response).encode())
             
