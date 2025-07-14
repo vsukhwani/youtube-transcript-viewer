@@ -22,7 +22,9 @@
     <button onclick="testIndexEndpoint()">Test API Index</button>
     <button onclick="testSimpleAPI()">Test Simple API</button>
     <button onclick="testHelloAPI()">Test Hello API</button>
+    <button onclick="testPingAPI()">Test Ping API</button>
     <button onclick="testTranscriptTest()">Test Transcript Test</button>
+    <button onclick="testAllEndpoints()">Test All Endpoints</button>
     <button onclick="testDirectPOST()">Test Direct POST</button>
     <button onclick="clearResults()">Clear Results</button>
     
@@ -219,14 +221,18 @@
                 
                 log(`Test API status: ${response.status}`, response.ok ? 'success' : 'error');
                 
-                try {
-                    // Try to parse as JSON
-                    const data = await response.json();
-                    log(`Test API response: ${JSON.stringify(data)}`, 'success');
-                } catch (jsonError) {
-                    // If not JSON, show as text
-                    const textData = await response.text();
-                    log(`Test API is not JSON: ${textData.substring(0, 200)}...`, 'error');
+                // Read response only once
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        log(`Test API response: ${JSON.stringify(data)}`, 'success');
+                    } catch (jsonError) {
+                        log(`Test API is not JSON: ${responseText.substring(0, 200)}...`, 'error');
+                    }
+                } else {
+                    log(`Test API error response: ${responseText.substring(0, 200)}...`, 'error');
                 }
             } catch (error) {
                 log(`Test API error: ${error.message}`, 'error');
@@ -243,17 +249,49 @@
                 
                 log(`Hello API status: ${response.status}`, response.ok ? 'success' : 'error');
                 
-                try {
-                    // Try to parse as JSON
-                    const data = await response.json();
-                    log(`Hello API response: ${JSON.stringify(data)}`, 'success');
-                } catch (jsonError) {
-                    // If not JSON, show as text
-                    const textData = await response.text();
-                    log(`Hello API is not JSON: ${textData.substring(0, 200)}...`, 'error');
+                // Read response only once
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        log(`Hello API response: ${JSON.stringify(data)}`, 'success');
+                    } catch (jsonError) {
+                        log(`Hello API is not JSON: ${responseText.substring(0, 200)}...`, 'error');
+                    }
+                } else {
+                    log(`Hello API error response: ${responseText.substring(0, 200)}...`, 'error');
                 }
             } catch (error) {
                 log(`Hello API error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testPingAPI() {
+            log('Testing ping API (simplest possible endpoint)...', 'loading');
+            
+            try {
+                const response = await fetch('/api/ping', {
+                    method: 'GET'
+                });
+                
+                log(`Ping API status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                // Read response only once
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        log(`Ping API response: ${JSON.stringify(data)}`, 'success');
+                    } catch (jsonError) {
+                        log(`Ping API is not JSON: ${responseText.substring(0, 200)}...`, 'error');
+                    }
+                } else {
+                    log(`Ping API error response: ${responseText.substring(0, 200)}...`, 'error');
+                }
+            } catch (error) {
+                log(`Ping API error: ${error.message}`, 'error');
             }
         }
         
@@ -273,16 +311,80 @@
                 
                 log(`Transcript Test API status: ${response.status}`, response.ok ? 'success' : 'error');
                 
-                try {
-                    const data = await response.json();
-                    log(`Transcript Test API response: ${JSON.stringify(data)}`, 'success');
-                } catch (jsonError) {
-                    const textData = await response.text();
-                    log(`Transcript Test API is not JSON: ${textData.substring(0, 200)}...`, 'error');
+                // Read response only once
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        log(`Transcript Test API response: ${JSON.stringify(data)}`, 'success');
+                    } catch (jsonError) {
+                        log(`Transcript Test API is not JSON: ${responseText.substring(0, 200)}...`, 'error');
+                    }
+                } else {
+                    log(`Transcript Test API error response: ${responseText.substring(0, 200)}...`, 'error');
                 }
             } catch (error) {
                 log(`Transcript Test API error: ${error.message}`, 'error');
             }
+        }
+        
+        async function testAllEndpoints() {
+            log('Testing all endpoints sequentially...', 'loading');
+            
+            const endpoints = [
+                { name: 'Hello', path: '/api/hello', method: 'GET' },
+                { name: 'Test', path: '/api/test', method: 'GET' },
+                { name: 'Ping', path: '/api/ping', method: 'GET' },
+                { name: 'Index', path: '/api', method: 'GET' },
+                { 
+                    name: 'Transcript Test', 
+                    path: '/api/transcript_test', 
+                    method: 'POST',
+                    body: JSON.stringify({ url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw' })
+                }
+            ];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    log(`Testing ${endpoint.name} API...`, 'loading');
+                    
+                    const options = {
+                        method: endpoint.method,
+                        headers: endpoint.method === 'POST' ? { 'Content-Type': 'application/json' } : {}
+                    };
+                    
+                    if (endpoint.body) {
+                        options.body = endpoint.body;
+                    }
+                    
+                    const response = await fetch(endpoint.path, options);
+                    
+                    const status = response.ok ? 'success' : 'error';
+                    log(`${endpoint.name} API: ${response.status}`, status);
+                    
+                    const responseText = await response.text();
+                    
+                    if (response.ok) {
+                        try {
+                            const data = JSON.parse(responseText);
+                            log(`${endpoint.name} response: ${JSON.stringify(data).substring(0, 100)}...`, 'success');
+                        } catch (e) {
+                            log(`${endpoint.name} response (not JSON): ${responseText.substring(0, 100)}...`, 'error');
+                        }
+                    } else {
+                        log(`${endpoint.name} error: ${responseText.substring(0, 100)}...`, 'error');
+                    }
+                    
+                    // Small delay between requests
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                } catch (error) {
+                    log(`${endpoint.name} error: ${error.message}`, 'error');
+                }
+            }
+            
+            log('All endpoint tests completed!', 'info');
         }
         
         async function testDirectPOST() {
