@@ -24,6 +24,7 @@
     <button onclick="testHelloAPI()">Test Hello API</button>
     <button onclick="testPingAPI()">Test Ping API</button>
     <button onclick="testDiagnostic()">🔍 Diagnostic Test</button>
+    <button onclick="testNetworkDiagnostic()">🌐 Network Test</button>
     <button onclick="testManualVideo()">📹 Test Custom Video</button>
     <button onclick="testTranscriptTest()">Test Transcript Test</button>
     <button onclick="testWorkingTranscript()">Test Working Transcript</button>
@@ -399,6 +400,86 @@
             }
             
             log('🔍 Diagnostic complete!', 'info');
+        }
+        
+        async function testNetworkDiagnostic() {
+            log('🌐 Running network connectivity diagnostic...', 'loading');
+            
+            try {
+                const response = await fetch('/api/network_test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        video_id: 'dQw4w9WgXcQ'
+                    })
+                });
+                
+                log(`📊 Network Test Status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                const data = await response.json();
+                
+                // Environment info
+                if (data.environment) {
+                    log(`🖥️ Environment: ${data.environment.platform}`, 'info');
+                    log(`🐍 Python: ${data.environment.python_version}`, 'info');
+                    log(`☁️ Vercel: ${data.environment.is_vercel}`, 'info');
+                    log(`🌍 Region: ${data.environment.aws_region}`, 'info');
+                }
+                
+                // YouTube connectivity
+                if (data.youtube_connectivity) {
+                    if (data.youtube_connectivity.status === 'success') {
+                        log(`✅ YouTube connectivity: SUCCESS (${data.youtube_connectivity.status_code})`, 'success');
+                    } else {
+                        log(`❌ YouTube connectivity: FAILED`, 'error');
+                        log(`❌ Error: ${data.youtube_connectivity.error}`, 'error');
+                        log(`❌ Type: ${data.youtube_connectivity.error_type}`, 'error');
+                    }
+                }
+                
+                // User-Agent tests
+                if (data.user_agent_tests) {
+                    log(`🔍 User-Agent Test Results:`, 'info');
+                    data.user_agent_tests.forEach((test, index) => {
+                        const status = test.status === 'success' ? '✅' : '❌';
+                        const ua = test.user_agent === 'none' ? 'No User-Agent' : test.user_agent;
+                        log(`  ${status} ${ua.substring(0, 50)}...`, test.status === 'success' ? 'success' : 'error');
+                        if (test.error) {
+                            log(`    Error: ${test.error}`, 'error');
+                        }
+                    });
+                }
+                
+                // Library info
+                if (data.library_info) {
+                    if (data.library_info.import_success) {
+                        log(`📚 Library import: SUCCESS`, 'success');
+                        log(`📦 Version: ${data.library_info.library_version}`, 'info');
+                        log(`🔧 Internal API: ${data.library_info.internal_api_accessible ? 'Accessible' : 'Issues'}`, 
+                            data.library_info.internal_api_accessible ? 'success' : 'error');
+                    } else {
+                        log(`❌ Library import: FAILED`, 'error');
+                        log(`❌ Import error: ${data.library_info.import_error}`, 'error');
+                    }
+                }
+                
+                // SSL info
+                if (data.ssl_info) {
+                    if (data.ssl_info.error) {
+                        log(`❌ SSL Error: ${data.ssl_info.error}`, 'error');
+                    } else {
+                        log(`🔒 SSL: ${data.ssl_info.ssl_version}`, 'success');
+                        log(`🔐 Verify mode: ${data.ssl_info.verify_mode}`, 'info');
+                    }
+                }
+                
+                log('🌐 Network diagnostic complete!', 'info');
+                
+            } catch (error) {
+                log(`❌ Network diagnostic error: ${error.message}`, 'error');
+            }
         }
         
         async function testManualVideo() {
