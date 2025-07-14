@@ -1,6 +1,8 @@
 // Simplified version without language functionality
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🔍 Loading simplified transcript viewer without language support');
+    console.log('🔍 CONFIG loaded:', window.CONFIG);
+    console.log('🔍 API URL will be:', window.CONFIG?.apiUrl);
     
     // Basic DOM elements
     const youtubeUrlInput = document.getElementById('youtube-url');
