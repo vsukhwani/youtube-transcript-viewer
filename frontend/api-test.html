@@ -17,7 +17,7 @@
     
     <div class="note">
         <p><strong>Note:</strong> This is a test page for directly testing the transcript API. Use this to verify the API is working correctly.</p>
-        <p>This page tests the connection to: <code>http://localhost:3002/api/transcript_v2</code></p>
+        <p>This page will automatically detect if it's running locally or on Vercel and use the appropriate API endpoint.</p>
     </div>
     
     <button id="test-btn">Test API</button>
@@ -28,8 +28,18 @@
             const resultElement = document.getElementById('result');
             resultElement.textContent = 'Testing API...';
             
+            // Determine API URL based on environment
+            let apiUrl = 'http://localhost:3002/api/transcript_v2';
+            if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                // If running on Vercel or other server, use relative path
+                apiUrl = '/api/transcript_v2';
+                resultElement.textContent = `Using production API at: ${apiUrl}\n`;
+            } else {
+                resultElement.textContent = `Using local API at: ${apiUrl}\n`;
+            }
+            
             try {
-                const response = await fetch('http://localhost:3002/api/transcript_v2', {
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

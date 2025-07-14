@@ -1,0 +1,38 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.env
+
+# Test files
+backend/api/test-*
+**/test_*
+tests/
+
+# Development files
+.git
+.github
+.vscode
+.idea
+.cursor
+.gitignore
+node_modules
+
+# Backup files
+*.bak
+*.swp
+*~
+
+# Server-specific files
+backend/server.py
+backend/README.md
+LAUNCH.bat
+
+# Docker related
+Dockerfile
+docker-compose.yml

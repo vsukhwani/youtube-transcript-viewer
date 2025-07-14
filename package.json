@@ -6,7 +6,7 @@
   "scripts": {
     "start": "python backend/server.py",
     "dev": "python backend/server.py",
-    "build": "echo 'No build step required for static files'"
+    "build": "bash build.sh"
   },
   "keywords": [
     "youtube",
