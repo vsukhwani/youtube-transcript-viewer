@@ -4,6 +4,10 @@
     {
       "src": "api/*.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "frontend/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -14,7 +18,8 @@
     { "src": "/api/languages", "dest": "/api/languages_v4.py" },
     { "src": "/api/test", "dest": "/api/test.py" },
     { "src": "/api$", "dest": "/api/index.py" },
-    { "src": "/debug", "dest": "/frontend/debug.html" },
+    { "src": "/debug$", "dest": "/frontend/debug.html" },
+    { "src": "/debug.html$", "dest": "/frontend/debug.html" },
     { "src": "/", "dest": "/frontend/index.html" },
     { "src": "/(.*)\\.(.+)", "dest": "/frontend/$1.$2" },
     { "src": "/(.*)", "dest": "/frontend/$1" }
