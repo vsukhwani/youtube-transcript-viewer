@@ -24,6 +24,7 @@
     <button onclick="testHelloAPI()">Test Hello API</button>
     <button onclick="testPingAPI()">Test Ping API</button>
     <button onclick="testTranscriptTest()">Test Transcript Test</button>
+    <button onclick="testWithTranscripts()">Test Video With Transcripts</button>
     <button onclick="testAllEndpoints()">Test All Endpoints</button>
     <button onclick="testDirectPOST()">Test Direct POST</button>
     <button onclick="clearResults()">Clear Results</button>
@@ -65,7 +66,7 @@
                         'X-API-Key': CONFIG.apiKey
                     },
                     body: JSON.stringify({
-                        url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw'
+                        url: 'https://www.youtube.com/watch?v=LXb3EKWsInQ'  // A video with available transcripts
                     })
                 });
 
@@ -329,6 +330,45 @@
             }
         }
         
+        async function testWithTranscripts() {
+            log('Testing transcript_v2 with a video that has available transcripts...', 'loading');
+            
+            try {
+                const response = await fetch('/api/transcript_v2', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': CONFIG.apiKey
+                    },
+                    body: JSON.stringify({
+                        url: 'https://www.youtube.com/watch?v=LXb3EKWsInQ'  // VSAUCE video with transcripts
+                    })
+                });
+                
+                log(`Transcript API status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        if (data.transcript) {
+                            log(`✅ SUCCESS! Transcript received, length: ${data.transcript.length} characters`, 'success');
+                            log(`First 100 chars: ${data.transcript.substring(0, 100)}...`, 'success');
+                        } else if (data.error) {
+                            log(`❌ API Error: ${data.error}`, 'error');
+                        }
+                    } catch (jsonError) {
+                        log(`Response is not JSON: ${responseText.substring(0, 200)}...`, 'error');
+                    }
+                } else {
+                    log(`❌ HTTP Error: ${responseText.substring(0, 200)}...`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+        
         async function testAllEndpoints() {
             log('Testing all endpoints sequentially...', 'loading');
             
@@ -341,7 +381,7 @@
                     name: 'Transcript Test', 
                     path: '/api/transcript_test', 
                     method: 'POST',
-                    body: JSON.stringify({ url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw' })
+                    body: JSON.stringify({ url: 'https://www.youtube.com/watch?v=LXb3EKWsInQ' })
                 }
             ];
             
@@ -397,7 +437,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw'
+                        url: 'https://www.youtube.com/watch?v=LXb3EKWsInQ'  // A video with available transcripts
                     })
                 });
                 
