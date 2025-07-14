@@ -447,15 +447,20 @@
                 const responseText = await response.text();
                 log(`Response body: ${responseText.substring(0, 300)}...`, 'info');
                 
-                if (responseText.includes('<!DOCTYPE') || responseText.includes('<html>')) {
-                    log('Response is HTML - this means the route is not working correctly', 'error');
-                } else {
-                    try {
-                        const data = JSON.parse(responseText);
-                        log(`Parsed response: ${JSON.stringify(data)}`, 'success');
-                    } catch (e) {
-                        log('Response is not valid JSON', 'error');
+                try {
+                    const data = JSON.parse(responseText);
+                    log(`Parsed response: ${JSON.stringify(data)}`, 'success');
+                    
+                    // Check the actual status in the JSON response
+                    if (data.status === 'success') {
+                        log(`✅ SUCCESS! Transcript retrieved successfully`, 'success');
+                    } else if (data.status === 'no_transcripts') {
+                        log(`⚠️ No transcripts available for this video`, 'error');
+                    } else if (data.status === 'error') {
+                        log(`❌ API Error: ${data.error}`, 'error');
                     }
+                } catch (e) {
+                    log('Response is not valid JSON', 'error');
                 }
             } catch (error) {
                 log(`Direct POST error: ${error.message}`, 'error');

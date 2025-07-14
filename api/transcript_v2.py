@@ -215,14 +215,13 @@ class handler(BaseHTTPRequestHandler):
                 error_str = str(e)
                 error_lower = error_str.lower()
                 
-                status_code = 500
+                status_code = 200  # Always return 200 for API responses
                 status = "error"
                 
                 if "could not retrieve a transcript" in error_lower or "subtitles are disabled" in error_lower:
-                    status_code = 404
                     status = "no_transcripts"
                 
-                # Send error response
+                # Send error response with 200 status
                 self.send_response(status_code)
                 self.send_header('Content-Type', 'application/json')
                 self._send_cors_headers()
