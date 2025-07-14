@@ -24,6 +24,7 @@
     <button onclick="testHelloAPI()">Test Hello API</button>
     <button onclick="testPingAPI()">Test Ping API</button>
     <button onclick="testDiagnostic()">🔍 Diagnostic Test</button>
+    <button onclick="testManualVideo()">📹 Test Custom Video</button>
     <button onclick="testTranscriptTest()">Test Transcript Test</button>
     <button onclick="testWorkingTranscript()">Test Working Transcript</button>
     <button onclick="testWithTranscripts()">Test Video With Transcripts</button>
@@ -301,11 +302,13 @@
         async function testDiagnostic() {
             log('🔍 Running comprehensive transcript diagnostic...', 'loading');
             
-            // Test with a popular video that should have transcripts
+            // Test with videos that are GUARANTEED to have transcripts
             const testVideos = [
-                'https://www.youtube.com/watch?v=ZQUxL4Jm1Lo', // TED Talk
-                'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // Rick Roll (popular video)
-                'https://www.youtube.com/watch?v=jNQXAC9IVRw'  // Me at the zoo
+                'https://www.youtube.com/watch?v=fJ9rUzIMcZQ', // Google I/O (always has captions)
+                'https://www.youtube.com/watch?v=9bZkp7q19f0', // Popular tech talk
+                'https://www.youtube.com/watch?v=v2AC41dglnM', // CGP Grey video (known to have captions)
+                'https://www.youtube.com/watch?v=4_aOIA-vyBo', // Popular educational content
+                'https://www.youtube.com/watch?v=yJDv-zdhzMY'  // Khan Academy style content
             ];
             
             for (const testUrl of testVideos) {
@@ -396,6 +399,70 @@
             }
             
             log('🔍 Diagnostic complete!', 'info');
+        }
+        
+        async function testManualVideo() {
+            const videoUrl = prompt('Enter a YouTube URL to test for transcripts:');
+            if (!videoUrl) {
+                log('❌ No URL provided', 'error');
+                return;
+            }
+            
+            log(`📹 Testing custom video: ${videoUrl}`, 'loading');
+            
+            try {
+                const response = await fetch('/api/diagnostic', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: videoUrl
+                    })
+                });
+                
+                log(`📊 HTTP Status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                const responseText = await response.text();
+                const data = JSON.parse(responseText);
+                
+                log(`🆔 Video ID: ${data.video_id}`, 'info');
+                
+                if (data.list_transcripts_success === true) {
+                    log(`✅ SUCCESS! Found ${data.transcript_count} transcripts`, 'success');
+                    
+                    if (data.transcript_count > 0) {
+                        data.available_transcripts.forEach((transcript, index) => {
+                            log(`  ${index + 1}. ${transcript.language} (${transcript.language_code}) - Generated: ${transcript.is_generated}`, 'success');
+                        });
+                        
+                        // Test the actual transcript API
+                        log(`🎯 Testing actual transcript retrieval...`, 'loading');
+                        const transcriptResponse = await fetch('/api/transcript_v2', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-API-Key': CONFIG.apiKey
+                            },
+                            body: JSON.stringify({ url: videoUrl })
+                        });
+                        
+                        const transcriptData = await transcriptResponse.json();
+                        if (transcriptData.status === 'success') {
+                            log(`🎉 FULL SUCCESS! Transcript retrieved: ${transcriptData.transcript.length} characters`, 'success');
+                            log(`📝 Preview: ${transcriptData.transcript.substring(0, 150)}...`, 'success');
+                        } else {
+                            log(`❌ Transcript API failed: ${transcriptData.error}`, 'error');
+                        }
+                    }
+                } else {
+                    log(`❌ No transcripts available`, 'error');
+                    log(`❌ Error: ${data.list_transcripts_error}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Test error: ${error.message}`, 'error');
+            }
         }
         
         async function testTranscriptTest() {
