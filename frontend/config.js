@@ -13,6 +13,7 @@ window.CONFIG = {
         // If running on Vercel or other server, use relative paths
         return '/api/transcript_v2';
     })(),
+    helloApiUrl: '/api/hello',
     
     // App settings
     defaultFontSize: 'medium',

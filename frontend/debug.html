@@ -21,6 +21,7 @@
     <button onclick="testRawEndpoint()">Test Raw Endpoint</button>
     <button onclick="testIndexEndpoint()">Test API Index</button>
     <button onclick="testSimpleAPI()">Test Simple API</button>
+    <button onclick="testHelloAPI()">Test Hello API</button>
     <button onclick="clearResults()">Clear Results</button>
     
     <div>
@@ -227,6 +228,30 @@
                 }
             } catch (error) {
                 log(`Test API error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testHelloAPI() {
+            log('Testing hello API (most basic Vercel function)...', 'loading');
+            
+            try {
+                const response = await fetch('/api/hello', {
+                    method: 'GET'
+                });
+                
+                log(`Hello API status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                try {
+                    // Try to parse as JSON
+                    const data = await response.json();
+                    log(`Hello API response: ${JSON.stringify(data)}`, 'success');
+                } catch (jsonError) {
+                    // If not JSON, show as text
+                    const textData = await response.text();
+                    log(`Hello API is not JSON: ${textData.substring(0, 200)}...`, 'error');
+                }
+            } catch (error) {
+                log(`Hello API error: ${error.message}`, 'error');
             }
         }
     </script>

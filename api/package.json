@@ -1,0 +1,15 @@
+{
+  "name": "youtube-transcript-api",
+  "version": "1.0.0",
+  "description": "YouTube Transcript API for Vercel",
+  "main": "index.py",
+  "scripts": {
+    "test": "echo \"No tests specified\""
+  },
+  "dependencies": {
+    "youtube-transcript-api": "^0.6.2"
+  },
+  "engines": {
+    "node": ">=16.x"
+  }
+}
