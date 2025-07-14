@@ -220,7 +220,9 @@ class LocalDevHandler(http.server.SimpleHTTPRequestHandler):
                 "test_info": {
                     "youtube_api_available": True,
                     "sample_videos": [
-                        "https://www.youtube.com/watch?v=LXb3EKWsInQ"
+                        "https://www.youtube.com/watch?v=fJ9rUzIMcZQ",  # Google I/O 2023
+                        "https://www.youtube.com/watch?v=9bZkp7q19f0",  # Next.js Conf
+                        "https://www.youtube.com/watch?v=v2AC41dglnM"   # CGP Grey
                     ]
                 }
             })

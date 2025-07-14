@@ -65,7 +65,7 @@
                         'X-API-Key': CONFIG.apiKey
                     },
                     body: JSON.stringify({
-                        url: 'https://www.youtube.com/watch?v=LXb3EKWsInQ'  // A video with available transcripts
+                        url: 'https://www.youtube.com/watch?v=fJ9rUzIMcZQ'  // Google I/O - guaranteed to have captions
                     })
                 });
 
@@ -578,19 +578,27 @@
         async function testWorkingTranscript() {
             log('🎯 Testing transcript_v2 with a video GUARANTEED to have transcripts...', 'loading');
             
-            // Using a TED Talk video which always has transcripts
+            // Using videos that are very likely to have transcripts
             const testVideos = [
                 {
-                    url: 'https://www.youtube.com/watch?v=ZQUxL4Jm1Lo',
-                    title: 'TED Talk - How to speak so that people want to listen'
+                    url: 'https://www.youtube.com/watch?v=fJ9rUzIMcZQ',
+                    title: 'Google I/O 2023 - Generative AI updates'
                 },
                 {
-                    url: 'https://www.youtube.com/watch?v=8S0FDjFBj8o',
-                    title: 'TED Talk - Your body language may shape who you are'
+                    url: 'https://www.youtube.com/watch?v=9bZkp7q19f0',
+                    title: 'Next.js Conf 2021 - Popular tech talk'
                 },
                 {
-                    url: 'https://www.youtube.com/watch?v=Ks-_Mh1QhMc',
-                    title: 'TED Talk - Your body language shapes who you are'
+                    url: 'https://www.youtube.com/watch?v=v2AC41dglnM',
+                    title: 'CGP Grey - Rules for Rulers (educational content)'
+                },
+                {
+                    url: 'https://www.youtube.com/watch?v=4_aOIA-vyBo',
+                    title: 'Kurzgesagt - Popular educational animation'
+                },
+                {
+                    url: 'https://www.youtube.com/watch?v=yJDv-zdhzMY',
+                    title: 'Khan Academy - Educational content'
                 }
             ];
             
@@ -655,7 +663,7 @@
                         'X-API-Key': CONFIG.apiKey
                     },
                     body: JSON.stringify({
-                        url: 'https://www.youtube.com/watch?v=LXb3EKWsInQ'  // VSAUCE video with transcripts
+                        url: 'https://www.youtube.com/watch?v=fJ9rUzIMcZQ'  // Google I/O 2023 - guaranteed captions
                     })
                 });
                 
