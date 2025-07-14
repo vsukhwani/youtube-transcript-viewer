@@ -1,13 +1,32 @@
 from http.server import BaseHTTPRequestHandler
 import json
 import urllib.parse
+import re
+
+def extract_video_id(url):
+    """Extract YouTube video ID from various URL formats"""
+    youtube_id_pattern = r"(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})"
+    match = re.search(youtube_id_pattern, url)
+    return match.group(1) if match else None
 
 class handler(BaseHTTPRequestHandler):
+    def _send_cors_headers(self):
+        """Send CORS headers"""
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key')
+
+    def do_OPTIONS(self):
+        """Handle OPTIONS requests for CORS preflight"""
+        self.send_response(200)
+        self._send_cors_headers()
+        self.end_headers()
+
     def do_GET(self):
         try:
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
+            self._send_cors_headers()
             self.end_headers()
             
             # Parse query parameters
@@ -21,13 +40,8 @@ class handler(BaseHTTPRequestHandler):
                 return
             
             # Extract video ID
-            if 'youtu.be/' in url:
-                video_id = url.split('youtu.be/')[1].split('?')[0]
-            elif 'youtube.com/watch?v=' in url:
-                video_id = url.split('v=')[1].split('&')[0]
-            elif 'youtube.com/embed/' in url:
-                video_id = url.split('embed/')[1].split('?')[0]
-            else:
+            video_id = extract_video_id(url)
+            if not video_id:
                 response = {'error': 'Invalid YouTube URL format', 'status': 'error'}
                 self.wfile.write(json.dumps(response).encode())
                 return
