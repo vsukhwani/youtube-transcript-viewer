@@ -18,6 +18,9 @@
     <button onclick="testAPI()">Test API Direct</button>
     <button onclick="testLanguages()">Test Languages API</button>
     <button onclick="testVercelEndpoint()">Test Vercel Endpoint</button>
+    <button onclick="testRawEndpoint()">Test Raw Endpoint</button>
+    <button onclick="testIndexEndpoint()">Test API Index</button>
+    <button onclick="testSimpleAPI()">Test Simple API</button>
     <button onclick="clearResults()">Clear Results</button>
     
     <div>
@@ -153,6 +156,79 @@
             
             log(`Debug page loaded. Environment: ${isLocal ? 'Local' : 'Vercel'}`, 'info');
         });
+
+        async function testRawEndpoint() {
+            log('Testing raw endpoint (no JSON parsing)...', 'loading');
+            
+            try {
+                // Direct request to the API endpoint using fetch with text response
+                const response = await fetch('/api/transcript_v2', {
+                    method: 'GET'
+                });
+                
+                log(`Raw response status: ${response.status}`, response.ok ? 'success' : 'error');
+                log(`Response type: ${response.headers.get('content-type')}`, 'info');
+                
+                // Get the raw text response
+                const textResponse = await response.text();
+                log(`Raw response (first 500 chars): ${textResponse.substring(0, 500)}`, 'info');
+                
+                // Check if it contains HTML
+                if (textResponse.includes('<!DOCTYPE html>') || textResponse.includes('<html>')) {
+                    log(`Response appears to be HTML, not JSON. This indicates a routing problem.`, 'error');
+                }
+            } catch (error) {
+                log(`Raw fetch error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testIndexEndpoint() {
+            log('Testing API index endpoint...', 'loading');
+            
+            try {
+                const response = await fetch('/api', {
+                    method: 'GET'
+                });
+                
+                log(`Index endpoint status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                try {
+                    // Try to parse as JSON
+                    const data = await response.json();
+                    log(`Index response: ${JSON.stringify(data)}`, 'success');
+                } catch (jsonError) {
+                    // If not JSON, show as text
+                    const textData = await response.text();
+                    log(`Index response is not JSON: ${textData.substring(0, 200)}...`, 'error');
+                }
+            } catch (error) {
+                log(`Index endpoint error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testSimpleAPI() {
+            log('Testing simple API (guaranteed to work)...', 'loading');
+            
+            try {
+                const response = await fetch('/api/test', {
+                    method: 'GET'
+                });
+                
+                log(`Test API status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                try {
+                    // Try to parse as JSON
+                    const data = await response.json();
+                    log(`Test API response: ${JSON.stringify(data)}`, 'success');
+                } catch (jsonError) {
+                    // If not JSON, show as text
+                    const textData = await response.text();
+                    log(`Test API is not JSON: ${textData.substring(0, 200)}...`, 'error');
+                }
+            } catch (error) {
+                log(`Test API error: ${error.message}`, 'error');
+            }
+        }
     </script>
 </body>
 </html>

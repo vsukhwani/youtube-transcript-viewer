@@ -125,19 +125,31 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('🔍 API response received, status:', response.status);
             
             if (!response.ok) {
-                const errorData = await response.json();
-                console.error('🔍 API error:', errorData);
-                throw errorData;
+                try {
+                    const errorData = await response.json();
+                    console.error('🔍 API error:', errorData);
+                    throw errorData;
+                } catch (jsonError) {
+                    // If response is not JSON, handle it differently
+                    const textData = await response.text();
+                    console.error('🔍 API returned non-JSON response:', textData.substring(0, 200));
+                    throw new Error(`API returned status ${response.status}: Non-JSON response`);
+                }
             }
             
-            const data = await response.json();
-            console.log('🔍 Transcript API response data received');
-            
-            if (!data.transcript) {
-                throw new Error('No transcript found in response');
+            try {
+                const data = await response.json();
+                console.log('🔍 Transcript API response data received');
+                
+                if (!data.transcript) {
+                    throw new Error('No transcript found in response');
+                }
+                
+                return data.transcript;
+            } catch (jsonError) {
+                console.error('🔍 JSON parsing error:', jsonError);
+                throw new Error('Could not parse API response as JSON');
             }
-            
-            return data.transcript;
         } catch (error) {
             console.error('🔍 Fetch error:', error);
             
@@ -157,6 +169,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         detail: 'Cannot connect to API. The server might be experiencing issues. Please try again later.'
                     };
                 }
+            } else if (error.message && error.message.includes('parse API response as JSON')) {
+                // Special handling for HTML responses that were supposed to be JSON
+                console.error('🔍 API returned HTML instead of JSON. This likely means the server-side routing is not working correctly.');
+                throw {
+                    detail: 'The API is returning HTML instead of JSON. Please visit /debug to troubleshoot.'
+                };
             }
             
             throw error;

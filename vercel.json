@@ -6,6 +6,10 @@
     { "src": "frontend/**", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/api$", "dest": "/api/index" },
+    { "src": "/api/test", "dest": "/api/test" },
+    { "src": "/api/transcript_v2", "dest": "/api/transcript_v2" },
+    { "src": "/api/languages_v4", "dest": "/api/languages_v4" },
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/debug", "dest": "/frontend/debug.html" },
     { "src": "/", "dest": "/frontend/index.html" },
