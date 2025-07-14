@@ -48,10 +48,10 @@ class handler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(response).encode())
                 return
             
-            # Try to import and use youtube_transcript_api
+            # Try to import and use youtube_transcript_api for transcript
             try:
                 from youtube_transcript_api import YouTubeTranscriptApi
-                
+
                 # Extract video ID
                 if 'youtu.be/' in url:
                     video_id = url.split('youtu.be/')[1].split('?')[0]
@@ -63,24 +63,21 @@ class handler(BaseHTTPRequestHandler):
                     response = {'error': 'Invalid YouTube URL format'}
                     self.wfile.write(json.dumps(response).encode())
                     return
-                
-                # Get transcript
+
+                # Get transcript (auto or manual)
                 transcript = YouTubeTranscriptApi.get_transcript(video_id)
                 transcript_text = '\n'.join([f"[{int(entry['start'])}s] {entry['text']}" for entry in transcript])
-                
                 response = {
                     'transcript': transcript_text,
                     'video_id': video_id,
                     'language': 'auto',
                     'status': 'success'
                 }
-                
             except Exception as e:
-                # Classify missing transcript errors (case-insensitive match)
+                # Classify missing transcript errors
                 err_str = str(e)
                 err_lower = err_str.lower()
                 if 'could not retrieve a transcript' in err_lower or 'subtitles are disabled' in err_lower:
-                    # No transcripts available for this video
                     response = {
                         'error': err_str,
                         'video_id': video_id if 'video_id' in locals() else 'unknown',
@@ -119,7 +116,8 @@ class handler(BaseHTTPRequestHandler):
             if content_length > 0:
                 post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
                 url = post_data.get('url', '')
-                language = post_data.get('language', 'en')
+                # Default to None so that default get_transcript is used when no explicit language
+                language = post_data.get('language')
             else:
                 response = {'error': 'No data provided', 'status': 'error'}
                 self.wfile.write(json.dumps(response).encode())
@@ -146,9 +144,14 @@ class handler(BaseHTTPRequestHandler):
                     self.wfile.write(json.dumps(response).encode())
                     return
                 
-                # Get transcript with language if specified
+                # Get transcript with language if specified, fallback to default if it fails
+                # Fetch transcript: if specific language provided, attempt that, otherwise default
                 if language and language != 'auto':
-                    transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
+                    try:
+                        transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
+                    except Exception:
+                        # Fallback to default transcript
+                        transcript = YouTubeTranscriptApi.get_transcript(video_id)
                 else:
                     transcript = YouTubeTranscriptApi.get_transcript(video_id)
                 
