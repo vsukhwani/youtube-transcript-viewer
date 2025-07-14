@@ -24,6 +24,7 @@
     <button onclick="testHelloAPI()">Test Hello API</button>
     <button onclick="testPingAPI()">Test Ping API</button>
     <button onclick="testTranscriptTest()">Test Transcript Test</button>
+    <button onclick="testWorkingTranscript()">Test Working Transcript</button>
     <button onclick="testWithTranscripts()">Test Video With Transcripts</button>
     <button onclick="testAllEndpoints()">Test All Endpoints</button>
     <button onclick="testDirectPOST()">Test Direct POST</button>
@@ -328,6 +329,75 @@
             } catch (error) {
                 log(`Transcript Test API error: ${error.message}`, 'error');
             }
+        }
+        
+        async function testWorkingTranscript() {
+            log('🎯 Testing transcript_v2 with a video GUARANTEED to have transcripts...', 'loading');
+            
+            // Using a TED Talk video which always has transcripts
+            const testVideos = [
+                {
+                    url: 'https://www.youtube.com/watch?v=ZQUxL4Jm1Lo',
+                    title: 'TED Talk - How to speak so that people want to listen'
+                },
+                {
+                    url: 'https://www.youtube.com/watch?v=8S0FDjFBj8o',
+                    title: 'TED Talk - Your body language may shape who you are'
+                },
+                {
+                    url: 'https://www.youtube.com/watch?v=Ks-_Mh1QhMc',
+                    title: 'TED Talk - Your body language shapes who you are'
+                }
+            ];
+            
+            for (const video of testVideos) {
+                try {
+                    log(`Testing video: ${video.title}`, 'loading');
+                    
+                    const response = await fetch('/api/transcript_v2', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-API-Key': CONFIG.apiKey
+                        },
+                        body: JSON.stringify({
+                            url: video.url
+                        })
+                    });
+                    
+                    log(`📊 HTTP Status: ${response.status} (${response.ok ? 'OK' : 'ERROR'})`, response.ok ? 'success' : 'error');
+                    
+                    const responseText = await response.text();
+                    
+                    try {
+                        const data = JSON.parse(responseText);
+                        
+                        if (data.status === 'success' && data.transcript) {
+                            log(`🎉 SUCCESS! Transcript received for ${video.title}`, 'success');
+                            log(`📝 Transcript length: ${data.transcript.length} characters`, 'success');
+                            log(`🎬 Video ID: ${data.video_id}`, 'success');
+                            log(`🔤 First 150 chars: ${data.transcript.substring(0, 150)}...`, 'success');
+                            
+                            // Stop testing after first success
+                            return;
+                        } else if (data.status === 'no_transcripts') {
+                            log(`⚠️ No transcripts for ${video.title}, trying next video...`, 'error');
+                        } else {
+                            log(`❌ Error for ${video.title}: ${data.error || 'Unknown error'}`, 'error');
+                        }
+                    } catch (jsonError) {
+                        log(`❌ Invalid JSON response for ${video.title}: ${responseText.substring(0, 200)}...`, 'error');
+                    }
+                    
+                    // Small delay between requests
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                } catch (error) {
+                    log(`❌ Network error for ${video.title}: ${error.message}`, 'error');
+                }
+            }
+            
+            log('⚠️ None of the test videos returned transcripts. There might be an API issue.', 'error');
         }
         
         async function testWithTranscripts() {
