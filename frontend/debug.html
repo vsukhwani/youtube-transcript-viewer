@@ -61,7 +61,7 @@
                         'X-API-Key': CONFIG.apiKey
                     },
                     body: JSON.stringify({
-                        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+                        url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw'
                     })
                 });
 
@@ -84,7 +84,7 @@
             log('Starting Languages API test...', 'loading');
             
             try {
-                const url = `${CONFIG.languagesApiUrl}?url=${encodeURIComponent('https://www.youtube.com/watch?v=dQw4w9WgXcQ')}`;
+                const url = `${CONFIG.languagesApiUrl}?url=${encodeURIComponent('https://www.youtube.com/watch?v=jNQXAC9IVRw')}`;
                 
                 const response = await fetch(url, {
                     method: 'GET',
@@ -121,7 +121,7 @@
                         'X-API-Key': CONFIG.apiKey
                     },
                     body: JSON.stringify({
-                        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+                        url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw'
                     })
                 });
 

@@ -67,10 +67,15 @@ document.addEventListener('DOMContentLoaded', () => {
             let errorMessage = 'Failed to get transcript. Please try again.';
             
             try {
-                if (error.detail) {
+                if (error.status === 'no_transcripts') {
+                    errorMessage = 'This video does not have transcripts available. This could be because:\n\n• Subtitles are disabled for this video\n• The video is too new and transcripts haven\'t been generated yet\n• The video creator has not enabled subtitles\n\nPlease try a different video.';
+                } else if (error.detail) {
                     errorMessage = error.detail;
                 } else if (error.message) {
                     errorMessage = error.message;
+                } else if (error.error) {
+                    // Handle case where API returns error in 'error' field
+                    errorMessage = error.error;
                 }
             } catch (e) {
                 console.error('Error parsing error message:', e);
@@ -124,21 +129,24 @@ document.addEventListener('DOMContentLoaded', () => {
             
             console.log('🔍 API response received, status:', response.status);
             
+            // Read the response once and then process it
+            const responseText = await response.text();
+            console.log('🔍 Raw response:', responseText.substring(0, 200));
+            
             if (!response.ok) {
                 try {
-                    const errorData = await response.json();
+                    const errorData = JSON.parse(responseText);
                     console.error('🔍 API error:', errorData);
                     throw errorData;
                 } catch (jsonError) {
                     // If response is not JSON, handle it differently
-                    const textData = await response.text();
-                    console.error('🔍 API returned non-JSON response:', textData.substring(0, 200));
+                    console.error('🔍 API returned non-JSON response:', responseText.substring(0, 200));
                     throw new Error(`API returned status ${response.status}: Non-JSON response`);
                 }
             }
             
             try {
-                const data = await response.json();
+                const data = JSON.parse(responseText);
                 console.log('🔍 Transcript API response data received');
                 
                 if (!data.transcript) {
