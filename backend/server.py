@@ -85,10 +85,12 @@ class LocalDevHandler(http.server.SimpleHTTPRequestHandler):
         """Handle GET requests to the API endpoints."""
         # Check if this is an API request
         parsed_url = urlparse(self.path)
+        # Normalize path to remove trailing slash for endpoint matching
+        path = parsed_url.path.rstrip('/')
         query_params = parse_qs(parsed_url.query)
         
         # Handle languages API endpoint
-        if parsed_url.path == "/api/languages":
+        if path in ("/api/languages", "/api/languages_v4"):
             # Check rate limiting
             client_ip = self.client_address[0]
             if rate_limiter.is_rate_limited(client_ip):
@@ -166,9 +168,10 @@ class LocalDevHandler(http.server.SimpleHTTPRequestHandler):
             return
             
         parsed_url = urlparse(self.path)
-        
+        # Normalize path to remove trailing slash for endpoint matching
+        path = parsed_url.path.rstrip('/')
         # Handle API requests
-        if parsed_url.path == "/api/transcript":
+        if path in ("/api/transcript", "/api/transcript_v2"):
             self.handle_transcript_api()
             return
         
