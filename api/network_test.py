@@ -91,22 +91,26 @@ class handler(BaseHTTPRequestHandler):
             # Test 3: Check if we can import and use the transcript library
             try:
                 from youtube_transcript_api import YouTubeTranscriptApi
-                from youtube_transcript_api._api import TranscriptApi
                 
                 diagnostics['library_info'] = {
                     'import_success': True,
                     'library_version': getattr(YouTubeTranscriptApi, '__version__', 'unknown')
                 }
                 
-                # Test the internal API components
+                # Test basic library functionality
                 try:
-                    # This is how the library internally makes requests
-                    api = TranscriptApi()
-                    # We can't easily test this without diving deep, but we can check if it's accessible
-                    diagnostics['library_info']['internal_api_accessible'] = True
-                except Exception as internal_error:
-                    diagnostics['library_info']['internal_api_accessible'] = False
-                    diagnostics['library_info']['internal_error'] = str(internal_error)
+                    # Test if we can actually use the library with a simple call
+                    # We'll just check if the class methods are accessible
+                    list_method = getattr(YouTubeTranscriptApi, 'list_transcripts', None)
+                    get_method = getattr(YouTubeTranscriptApi, 'get_transcript', None)
+                    
+                    diagnostics['library_info']['methods_accessible'] = {
+                        'list_transcripts': list_method is not None,
+                        'get_transcript': get_method is not None
+                    }
+                except Exception as method_error:
+                    diagnostics['library_info']['methods_accessible'] = False
+                    diagnostics['library_info']['method_error'] = str(method_error)
                 
             except ImportError as import_error:
                 diagnostics['library_info'] = {

@@ -40,17 +40,12 @@
     
     <div id="result"></div>
 
+    <!-- Load configuration -->
+    <script src="config.js"></script>
+    
     <script>
         // Dynamic configuration based on environment
-        const CONFIG = {
-            apiUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-                ? 'http://127.0.0.1:3002/api/transcript_v2'
-                : '/api/transcript_v2',
-            languagesApiUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                ? 'http://127.0.0.1:3002/api/languages'
-                : '/api/languages',
-            apiKey: 'dev_api_key_1234567890'
-        };
+        // CONFIG is loaded from config.js
 
         function log(message, type = 'info') {
             const result = document.getElementById('result');
@@ -121,7 +116,7 @@
             
             try {
                 // Always use the relative path for this test
-                const directUrl = '/api/transcript_v2';
+                const directUrl = CONFIG.apiUrl;
                 
                 const response = await fetch(directUrl, {
                     method: 'POST',
@@ -172,7 +167,7 @@
             
             try {
                 // Direct request to the API endpoint using fetch with text response
-                const response = await fetch('/api/transcript_v2', {
+                const response = await fetch(CONFIG.apiUrl, {
                     method: 'GET'
                 });
                 
@@ -220,7 +215,7 @@
             log('Testing simple API (guaranteed to work)...', 'loading');
             
             try {
-                const response = await fetch('/api/test', {
+                const response = await fetch(CONFIG.testApiUrl, {
                     method: 'GET'
                 });
                 
@@ -248,7 +243,7 @@
             log('Testing hello API (most basic Vercel function)...', 'loading');
             
             try {
-                const response = await fetch('/api/hello', {
+                const response = await fetch(CONFIG.helloApiUrl, {
                     method: 'GET'
                 });
                 
@@ -276,7 +271,7 @@
             log('Testing ping API (simplest possible endpoint)...', 'loading');
             
             try {
-                const response = await fetch('/api/ping', {
+                const response = await fetch(CONFIG.pingApiUrl, {
                     method: 'GET'
                 });
                 
@@ -316,7 +311,7 @@
                 try {
                     log(`🔬 Diagnosing: ${testUrl}`, 'loading');
                     
-                    const response = await fetch('/api/diagnostic', {
+                    const response = await fetch(CONFIG.diagnosticApiUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -406,7 +401,7 @@
             log('🌐 Running network connectivity diagnostic...', 'loading');
             
             try {
-                const response = await fetch('/api/network_test', {
+                const response = await fetch(CONFIG.networkTestApiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -492,7 +487,7 @@
             log(`📹 Testing custom video: ${videoUrl}`, 'loading');
             
             try {
-                const response = await fetch('/api/diagnostic', {
+                const response = await fetch(CONFIG.diagnosticApiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -519,7 +514,7 @@
                         
                         // Test the actual transcript API
                         log(`🎯 Testing actual transcript retrieval...`, 'loading');
-                        const transcriptResponse = await fetch('/api/transcript_v2', {
+                        const transcriptResponse = await fetch(CONFIG.apiUrl, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -550,7 +545,7 @@
             log('Testing transcript test API (simplified version)...', 'loading');
             
             try {
-                const response = await fetch('/api/transcript_test', {
+                const response = await fetch(CONFIG.transcriptTestApiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -603,7 +598,7 @@
                 try {
                     log(`Testing video: ${video.title}`, 'loading');
                     
-                    const response = await fetch('/api/transcript_v2', {
+                    const response = await fetch(CONFIG.apiUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -653,7 +648,7 @@
             log('Testing transcript_v2 with a video that has available transcripts...', 'loading');
             
             try {
-                const response = await fetch('/api/transcript_v2', {
+                const response = await fetch(CONFIG.apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -692,13 +687,13 @@
             log('Testing all endpoints sequentially...', 'loading');
             
             const endpoints = [
-                { name: 'Hello', path: '/api/hello', method: 'GET' },
-                { name: 'Test', path: '/api/test', method: 'GET' },
-                { name: 'Ping', path: '/api/ping', method: 'GET' },
-                { name: 'Index', path: '/api', method: 'GET' },
+                { name: 'Hello', path: CONFIG.helloApiUrl, method: 'GET' },
+                { name: 'Test', path: CONFIG.testApiUrl, method: 'GET' },
+                { name: 'Ping', path: CONFIG.pingApiUrl, method: 'GET' },
+                { name: 'Index', path: CONFIG.indexApiUrl, method: 'GET' },
                 { 
                     name: 'Transcript Test', 
-                    path: '/api/transcript_test', 
+                    path: CONFIG.transcriptTestApiUrl, 
                     method: 'POST',
                     body: JSON.stringify({ url: 'https://www.youtube.com/watch?v=LXb3EKWsInQ' })
                 }
@@ -750,7 +745,7 @@
             log('Testing direct POST to transcript_v2 with minimal payload...', 'loading');
             
             try {
-                const response = await fetch('/api/transcript_v2', {
+                const response = await fetch(CONFIG.apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

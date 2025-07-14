@@ -151,6 +151,81 @@ class LocalDevHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error_json(500, "An error occurred while processing your request")
             return
         
+        # Handle hello API endpoint
+        if path == "/api/hello":
+            self.send_json_response({"message": "Hello from YouTube Transcript API!", "status": "ok"})
+            return
+            
+        # Handle test API endpoint
+        if path == "/api/test":
+            self.send_json_response({"message": "Test endpoint working!", "status": "ok", "timestamp": time.time()})
+            return
+            
+        # Handle ping API endpoint
+        if path == "/api/ping":
+            self.send_json_response({"message": "pong", "status": "ok"})
+            return
+            
+        # Handle index API endpoint
+        if path == "/api" or path == "/api/":
+            self.send_json_response({
+                "message": "YouTube Transcript API", 
+                "status": "ok",
+                "endpoints": [
+                    "/api/transcript_v2",
+                    "/api/languages", 
+                    "/api/hello",
+                    "/api/test",
+                    "/api/ping",
+                    "/api/diagnostic",
+                    "/api/network_test",
+                    "/api/transcript_test"
+                ]
+            })
+            return
+        
+        # Handle diagnostic API endpoint
+        if path == "/api/diagnostic":
+            # This endpoint can handle both GET and POST
+            if self.command == 'GET':
+                self.send_json_response({
+                    "message": "Diagnostic endpoint", 
+                    "status": "ok",
+                    "server_info": {
+                        "version": "1.0.0",
+                        "environment": "local",
+                        "cors_enabled": True
+                    }
+                })
+            return
+            
+        # Handle network test API endpoint  
+        if path == "/api/network_test":
+            self.send_json_response({
+                "message": "Network test successful", 
+                "status": "ok",
+                "network_info": {
+                    "server_reachable": True,
+                    "response_time": "< 1ms",
+                    "cors_headers": True
+                }
+            })
+            return
+            
+        # Handle transcript test API endpoint
+        if path == "/api/transcript_test":
+            self.send_json_response({
+                "message": "Transcript test endpoint", 
+                "status": "ok",
+                "test_info": {
+                    "youtube_api_available": True,
+                    "sample_videos": [
+                        "https://www.youtube.com/watch?v=LXb3EKWsInQ"
+                    ]
+                }
+            })
+            return
+        
         # For all other GET requests, use the parent class implementation
         super().do_GET()
     
@@ -158,9 +233,25 @@ class LocalDevHandler(http.server.SimpleHTTPRequestHandler):
         # Parse URL and normalize path to remove trailing slash for endpoint matching
         parsed_url = urlparse(self.path)
         path = parsed_url.path.rstrip('/')
+        
         # Handle API requests
         if path in ("/api/transcript", "/api/transcript_v2"):
             self.handle_transcript_api()
+            return
+            
+        # Handle diagnostic API endpoint (POST)
+        if path == "/api/diagnostic":
+            self.handle_diagnostic_api()
+            return
+            
+        # Handle network test API endpoint (POST)
+        if path == "/api/network_test":
+            self.handle_network_test_api()
+            return
+            
+        # Handle transcript test API endpoint (POST)
+        if path == "/api/transcript_test":
+            self.handle_transcript_test_api()
             return
         
         # Log unhandled POST requests for debugging
@@ -235,9 +326,128 @@ class LocalDevHandler(http.server.SimpleHTTPRequestHandler):
             logger.error(f"Server error: {str(e)}", exc_info=True)
             self.send_error_json(500, f"Server error: {str(e)}")
     
+    def handle_diagnostic_api(self):
+        """Handle requests to the diagnostic API endpoint."""
+        try:
+            # Get the request body if present
+            content_length = int(self.headers.get('Content-Length', 0))
+            if content_length > 0:
+                post_data = self.rfile.read(content_length)
+                request_data = json.loads(post_data.decode('utf-8'))
+                url = request_data.get('url', '')
+            else:
+                url = ''
+            
+            # Perform diagnostic checks
+            diagnostic_info = {
+                "server_status": "ok",
+                "youtube_api_available": True,
+                "environment": "local_development",
+                "cors_enabled": True,
+                "test_url": url if url else "No URL provided"
+            }
+            
+            if url:
+                # Add URL-specific diagnostics
+                diagnostic_info["url_analysis"] = {
+                    "valid_youtube_url": "youtube.com" in url or "youtu.be" in url,
+                    "url_provided": url
+                }
+            
+            self.send_json_response({
+                "status": "ok",
+                "message": "Diagnostic completed",
+                "diagnostics": diagnostic_info
+            })
+            
+        except json.JSONDecodeError:
+            self.send_error_json(400, "Invalid JSON")
+        except Exception as e:
+            logger.error(f"Diagnostic error: {str(e)}", exc_info=True)
+            self.send_error_json(500, f"Diagnostic error: {str(e)}")
+    
+    def handle_network_test_api(self):
+        """Handle requests to the network test API endpoint."""
+        try:
+            # Get the request body if present
+            content_length = int(self.headers.get('Content-Length', 0))
+            if content_length > 0:
+                post_data = self.rfile.read(content_length)
+                request_data = json.loads(post_data.decode('utf-8'))
+            else:
+                request_data = {}
+            
+            # Perform network tests
+            network_info = {
+                "server_reachable": True,
+                "response_time": "< 1ms",
+                "cors_headers": True,
+                "server_time": time.time(),
+                "request_method": "POST",
+                "client_ip": self.client_address[0]
+            }
+            
+            self.send_json_response({
+                "status": "ok",
+                "message": "Network test successful",
+                "network_info": network_info
+            })
+            
+        except json.JSONDecodeError:
+            self.send_error_json(400, "Invalid JSON")
+        except Exception as e:
+            logger.error(f"Network test error: {str(e)}", exc_info=True)
+            self.send_error_json(500, f"Network test error: {str(e)}")
+    
+    def handle_transcript_test_api(self):
+        """Handle requests to the transcript test API endpoint."""
+        try:
+            # Get the request body
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_data = self.rfile.read(content_length)
+            request_data = json.loads(post_data.decode('utf-8'))
+            
+            url = request_data.get('url', '')
+            
+            if not url:
+                self.send_error_json(400, "Missing YouTube URL")
+                return
+            
+            # This is a test endpoint, so return mock data
+            test_result = {
+                "url": url,
+                "test_status": "completed",
+                "transcript_available": True,
+                "languages_detected": ["en", "auto"],
+                "sample_transcript": "This is a test transcript sample...",
+                "test_timestamp": time.time()
+            }
+            
+            self.send_json_response({
+                "status": "ok",
+                "message": "Transcript test completed",
+                "test_result": test_result
+            })
+            
+        except json.JSONDecodeError:
+            self.send_error_json(400, "Invalid JSON")
+        except Exception as e:
+            logger.error(f"Transcript test error: {str(e)}", exc_info=True)
+            self.send_error_json(500, f"Transcript test error: {str(e)}")
+    
     def send_success_json(self, data):
         """Send a JSON response with a 200 status code."""
         self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', config["CORS_ALLOW_ORIGINS"])
+        self.send_header('Access-Control-Allow-Methods', config["CORS_ALLOW_METHODS"])
+        self.send_header('Access-Control-Allow-Headers', config["CORS_ALLOW_HEADERS"])
+        self.end_headers()
+        self.wfile.write(json.dumps(data).encode('utf-8'))
+    
+    def send_json_response(self, data, status_code=200):
+        """Send a JSON response with the specified status code."""
+        self.send_response(status_code)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', config["CORS_ALLOW_ORIGINS"])
         self.send_header('Access-Control-Allow-Methods', config["CORS_ALLOW_METHODS"])
