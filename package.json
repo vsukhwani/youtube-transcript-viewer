@@ -1,17 +1,17 @@
 {
   "name": "transcript-viewer-vs2025",
   "version": "1.0.0",
-  "description": "A modern web application for fetching and displaying YouTube video transcripts with multi-language support",
+  "description": "A modern web application for fetching and displaying YouTube video transcripts",
   "main": "frontend/index.html",
   "scripts": {
     "start": "python backend/server.py",
-    "dev": "python backend/server.py"
+    "dev": "python backend/server.py",
+    "build": "echo 'No build step required for static files'"
   },
   "keywords": [
     "youtube",
     "transcript",
     "video",
-    "multilingual",
     "web-app"
   ],
   "author": "Vikas Sukhwani",
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/youtube-transcript-viewer.git"
+    "url": "https://github.com/vsukhwani/youtube-transcript-viewer.git"
   },
-  "homepage": "https://github.com/yourusername/youtube-transcript-viewer#readme"
+  "homepage": "https://github.com/vsukhwani/youtube-transcript-viewer#readme"
 }

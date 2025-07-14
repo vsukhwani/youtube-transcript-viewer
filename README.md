@@ -10,6 +10,8 @@ A modern web application for extracting and viewing YouTube video transcripts. *
 2. Paste any YouTube URL with captions/subtitles
 3. View and download the transcript instantly!
 
+> **Note:** This is a simplified version that automatically selects the best available transcript language. The language selection UI has been removed for better reliability.
+
 ## ✅ Test Videos (Known to Work)
 
 Try these URLs to test the application:
@@ -24,7 +26,6 @@ Try these URLs to test the application:
 
 - **🌐 Static Website**: Runs directly in the browser without any server
 - **🎨 Clean Interface**: Intuitive design with modern UI elements
-- **🌍 Language Selection**: Dropdown to select from available transcript languages
 - **⚡ Real-time Updates**: Dynamic loading states and error handling
 - **📱 Responsive Design**: Works seamlessly on desktop and mobile
 - **♿ Accessibility**: Keyboard navigation and screen reader friendly
@@ -35,7 +36,7 @@ Try these URLs to test the application:
 
 - `index.html` - Main HTML structure (open this in your browser!)
 - `styles.css` - CSS styles with CSS variables for theming
-- `script.js` - JavaScript application logic
+- `simplified-viewer.js` - Simplified JavaScript application logic
 - `config.js` - Configuration file that auto-detects environment
 
 ## 🚀 How to Use
@@ -50,6 +51,11 @@ If you prefer serving through a web server:
 1. Use any static web server (Python, Node.js, Apache, Nginx, etc.)
 2. Point it to this directory
 3. Update `config.js` if needed for different backend URLs
+
+### Option 3: Deploy to Vercel
+To deploy this application to Vercel:
+1. See [VERCEL-DEPLOY.md](VERCEL-DEPLOY.md) for detailed instructions
+2. The application is already configured to work on Vercel
 
 ## Configuration
 

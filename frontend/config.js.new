@@ -4,11 +4,11 @@ window.CONFIG = {
     apiUrl: (() => {
         // If accessing via file:// protocol (static website), use localhost backend
         if (window.location.protocol === 'file:') {
-            return 'http://localhost:3002/api/transcript_v2';
+            return 'http://127.0.0.1:3002/api/transcript_v2';
         }
         // If running on localhost (development)
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'http://localhost:3002/api/transcript_v2';
+            return 'http://127.0.0.1:3002/api/transcript_v2';
         }
         // If running on Vercel or other server, use relative paths
         return '/api/transcript_v2';
@@ -17,10 +17,12 @@ window.CONFIG = {
     // App settings
     defaultFontSize: 'medium',
     debug: true, // Always enable debug for troubleshooting
-    apiKey: 'dev_api_key_1234567890',
     
     // Analytics disabled for now
-    analytics: false
+    analytics: false,
+    
+    // API key for backend authentication - always use dev key for simplicity
+    apiKey: 'dev_api_key_1234567890'
 };
 
 // Log configuration on load for debugging

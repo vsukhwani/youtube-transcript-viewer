@@ -70,17 +70,9 @@ function initEventListeners() {
         saveFontSizePreference(e.target.value);
     });
     
-    if (languageSelect) {
-        languageSelect.addEventListener('change', handleLanguageChange);
-    }
-    
-    if (changeLanguageBtn) {
-        changeLanguageBtn.addEventListener('click', () => {
-            if (currentVideoId && languageSelect.value) {
-                fetchTranscriptWithLanguage(youtubeUrlInput.value, languageSelect.value);
-            }
-        });
-    }
+    // Remove language-related event listeners
+    // Hide language UI elements
+    hideLanguageUI();
 }
 
 // Get and display transcript
@@ -98,42 +90,20 @@ async function handleGetTranscript() {
     }
     
     showLoading();
-    resetLanguageSelection();
+    hideLanguageSelection(); // Hide language selection completely
     
     // Save current video ID
     currentVideoId = extractVideoId(url);
     console.log('🔍 Processing video ID:', currentVideoId);
     
     try {
-        // Skip backend health check for now since endpoint doesn't exist
-        // Instead, we'll let the API calls fail gracefully
-        
-        // Fetch available languages first
-        console.log('🔍 Fetching available languages');
-        const languages = await fetchAvailableLanguages(url);
-        availableLanguages = languages || [];
-        console.log('🔍 Found languages:', availableLanguages.length);
-        
-        // Sort languages to prioritize manual transcripts
-        if (availableLanguages.length > 0) {
-            availableLanguages.sort((a, b) => {
-                if (a.type === 'manual' && b.type !== 'manual') return -1;
-                if (a.type !== 'manual' && b.type === 'manual') return 1;
-                return a.name.localeCompare(b.name);
-            });
-        }
-        
-        // Set current language to first available language or null
-        currentLanguage = availableLanguages.length > 0 ? availableLanguages[0].code : null;
-        
-        // Fetch transcript
+        // Skip language fetching completely and go straight to transcript
         console.log('🔍 About to fetch transcript...');
-        const transcript = await fetchTranscript(url, currentLanguage);
+        const transcript = await fetchTranscript(url);
         console.log('🔍 Transcript fetched successfully, length:', transcript.length);
         console.log('🔍 About to display transcript...');
         displayTranscript(transcript);
         console.log('🔍 Transcript displayed successfully');
-        
     } catch (error) {
         console.error('Error fetching transcript:', error);
         let errorMessage = 'Failed to get transcript. Please try again.';
@@ -179,12 +149,19 @@ function initEventListeners() {
         setFontSize(e.target.value);
         saveFontSizePreference(e.target.value);
     });
-    languageSelect.addEventListener('change', handleLanguageChange);
-    changeLanguageBtn.addEventListener('click', () => {
-        if (currentVideoId && languageSelect.value) {
-            fetchTranscriptWithLanguage(youtubeUrlInput.value, languageSelect.value);
-        }
-    });
+    
+    // Only add language-related event listeners if the elements exist
+    if (languageSelect && changeLanguageBtn) {
+        console.log('🔍 Adding language event listeners');
+        languageSelect.addEventListener('change', handleLanguageChange);
+        changeLanguageBtn.addEventListener('click', () => {
+            if (currentVideoId && languageSelect.value) {
+                fetchTranscriptWithLanguage(youtubeUrlInput.value, languageSelect.value);
+            }
+        });
+    } else {
+        console.log('🔍 Language elements not found, skipping event listeners');
+    }
 }
 
 // Get and display transcript

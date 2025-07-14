@@ -59,6 +59,20 @@ h1 i {
     margin-right: 10px;
 }
 
+.announcement {
+    background-color: var(--secondary-color);
+    color: #333;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    margin-top: 1rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.announcement i {
+    margin-right: 0.5rem;
+}
+
 .subtitle {
     color: var(--text-light);
     font-size: 1.1rem;

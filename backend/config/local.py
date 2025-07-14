@@ -6,7 +6,7 @@ DEBUG = True
 
 # Security Settings
 API_KEY = "dev_api_key_1234567890"  # Development API key
-VERIFY_API_KEY = True  # Set to True to enable API key verification
+VERIFY_API_KEY = False  # Disable API key verification for local development
 ALLOWED_REFERRERS = ["*"]  # Allow all referrers in development
 
 # CORS Settings

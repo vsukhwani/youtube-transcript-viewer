@@ -9,10 +9,11 @@ from urllib.parse import urlparse, parse_qs
 from http import HTTPStatus
 import logging
 
-# Add the project root to the Python path
-script_dir = os.path.dirname(os.path.abspath(__file__))
+import os, sys
+# Configure project paths
+script_dir = os.path.dirname(os.path.abspath(__file__))  # backend folder
+# Add backend folder to PYTHONPATH so `config` and `api` packages inside backend are on the import path
 sys.path.insert(0, script_dir)
-
 # Import configuration
 from config import config
 
@@ -97,14 +98,8 @@ class LocalDevHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error_json(429, "Too many requests. Please try again later.")
                 return
                 
-            # Verify API key if enabled
-            if config["VERIFY_API_KEY"]:
-                api_key = self.headers.get('X-API-Key')
-                if not api_key or api_key != config["API_KEY"]:
-                    client_ip = self.client_address[0]
-                    logger.warning(f"Invalid or missing API key from IP: {client_ip}")
-                    self.send_error_json(401, "Unauthorized - Invalid or missing API key")
-                    return
+            # Skipping API key validation in local development
+            logger.info(f"Processing languages API request to: {path} with URL: {query_params.get('url', [''])[0]}")
             
             # Verify referrer if allowed referrers are specified
             if config["ALLOWED_REFERRERS"] and config["ALLOWED_REFERRERS"] != ["*"]:
@@ -160,35 +155,24 @@ class LocalDevHandler(http.server.SimpleHTTPRequestHandler):
         super().do_GET()
     
     def do_POST(self):
-        """Handle POST requests to the API endpoints."""
-        # Check rate limiting
-        client_ip = self.client_address[0]
-        if rate_limiter.is_rate_limited(client_ip):
-            self.send_error_json(429, "Too many requests. Please try again later.")
-            return
-            
+        # Parse URL and normalize path to remove trailing slash for endpoint matching
         parsed_url = urlparse(self.path)
-        # Normalize path to remove trailing slash for endpoint matching
         path = parsed_url.path.rstrip('/')
         # Handle API requests
         if path in ("/api/transcript", "/api/transcript_v2"):
             self.handle_transcript_api()
             return
         
+        # Log unhandled POST requests for debugging
+        logger.warning(f"Unhandled POST request to path: {path}")
         # If not an API request, return 404
         self.send_error(HTTPStatus.NOT_FOUND, "Endpoint not found")
     
     def handle_transcript_api(self):
         """Handle requests to the transcript API endpoint."""
         try:
-            # Verify API key if enabled
-            if config["VERIFY_API_KEY"]:
-                api_key = self.headers.get('X-API-Key')
-                if not api_key or api_key != config["API_KEY"]:
-                    client_ip = self.client_address[0]
-                    logger.warning(f"Invalid or missing API key from IP: {client_ip}")
-                    self.send_error_json(401, "Unauthorized - Invalid or missing API key")
-                    return
+            # Skipping API key validation in local development
+            logger.info(f"Processing transcript API request. Headers: {self.headers}")
             
             # Verify referrer if allowed referrers are specified
             if config["ALLOWED_REFERRERS"] and config["ALLOWED_REFERRERS"] != ["*"]:
@@ -230,6 +214,7 @@ class LocalDevHandler(http.server.SimpleHTTPRequestHandler):
             
             try:
                 transcript_text = get_transcript_text(url, language_code)
+                logger.info(f"Successfully retrieved transcript, length: {len(transcript_text)}")
                 self.send_success_json({"transcript": transcript_text})
             except (TranscriptsDisabled, NoTranscriptFound) as e:
                 logger.error(f"Transcript not available: {str(e)}")
@@ -277,6 +262,12 @@ class LocalDevHandler(http.server.SimpleHTTPRequestHandler):
     
     def do_OPTIONS(self):
         """Handle OPTIONS requests for CORS preflight."""
+        parsed_url = urlparse(self.path)
+        path = parsed_url.path.rstrip('/')
+        
+        # Log the OPTIONS request for debugging
+        logger.info(f"Handling OPTIONS request for path: {path}")
+        
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', config["CORS_ALLOW_ORIGINS"])
         self.send_header('Access-Control-Allow-Methods', config["CORS_ALLOW_METHODS"])
