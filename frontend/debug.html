@@ -23,6 +23,7 @@
     <button onclick="testSimpleAPI()">Test Simple API</button>
     <button onclick="testHelloAPI()">Test Hello API</button>
     <button onclick="testPingAPI()">Test Ping API</button>
+    <button onclick="testDiagnostic()">🔍 Diagnostic Test</button>
     <button onclick="testTranscriptTest()">Test Transcript Test</button>
     <button onclick="testWorkingTranscript()">Test Working Transcript</button>
     <button onclick="testWithTranscripts()">Test Video With Transcripts</button>
@@ -295,6 +296,86 @@
             } catch (error) {
                 log(`Ping API error: ${error.message}`, 'error');
             }
+        }
+        
+        async function testDiagnostic() {
+            log('🔍 Running comprehensive transcript diagnostic...', 'loading');
+            
+            // Test with a popular video that should have transcripts
+            const testVideos = [
+                'https://www.youtube.com/watch?v=ZQUxL4Jm1Lo', // TED Talk
+                'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // Rick Roll (popular video)
+                'https://www.youtube.com/watch?v=jNQXAC9IVRw'  // Me at the zoo
+            ];
+            
+            for (const testUrl of testVideos) {
+                try {
+                    log(`🔬 Diagnosing: ${testUrl}`, 'loading');
+                    
+                    const response = await fetch('/api/diagnostic', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            url: testUrl
+                        })
+                    });
+                    
+                    log(`📊 Diagnostic HTTP Status: ${response.status}`, response.ok ? 'success' : 'error');
+                    
+                    const responseText = await response.text();
+                    
+                    try {
+                        const data = JSON.parse(responseText);
+                        
+                        log(`🆔 Video ID: ${data.video_id}`, 'info');
+                        log(`📚 Library imported: ${data.library_imported}`, data.library_imported ? 'success' : 'error');
+                        
+                        if (data.import_error) {
+                            log(`❌ Import Error: ${data.import_error}`, 'error');
+                        }
+                        
+                        if (data.available_transcripts) {
+                            log(`📝 Available transcripts: ${data.transcript_count}`, data.transcript_count > 0 ? 'success' : 'error');
+                            
+                            if (data.transcript_count > 0) {
+                                data.available_transcripts.forEach((transcript, index) => {
+                                    log(`  ${index + 1}. Language: ${transcript.language} (${transcript.language_code}) - Generated: ${transcript.is_generated}`, 'info');
+                                });
+                                
+                                if (data.first_transcript_success) {
+                                    log(`✅ First transcript fetched successfully! Entries: ${data.first_transcript_entries}`, 'success');
+                                    if (data.first_transcript_sample) {
+                                        log(`📄 Sample: ${JSON.stringify(data.first_transcript_sample)}`, 'success');
+                                    }
+                                } else if (data.first_transcript_error) {
+                                    log(`❌ Failed to fetch first transcript: ${data.first_transcript_error}`, 'error');
+                                }
+                            }
+                        } else if (data.list_transcripts_error) {
+                            log(`❌ Failed to list transcripts: ${data.list_transcripts_error}`, 'error');
+                        }
+                        
+                        if (data.general_error) {
+                            log(`❌ General Error: ${data.general_error}`, 'error');
+                        }
+                        
+                        log('─────────────────────────────────────', 'info');
+                        
+                    } catch (jsonError) {
+                        log(`❌ Invalid diagnostic response: ${responseText.substring(0, 200)}...`, 'error');
+                    }
+                    
+                    // Small delay between tests
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                } catch (error) {
+                    log(`❌ Diagnostic network error: ${error.message}`, 'error');
+                }
+            }
+            
+            log('🔍 Diagnostic complete!', 'info');
         }
         
         async function testTranscriptTest() {
