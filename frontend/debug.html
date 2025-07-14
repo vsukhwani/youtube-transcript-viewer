@@ -22,6 +22,8 @@
     <button onclick="testIndexEndpoint()">Test API Index</button>
     <button onclick="testSimpleAPI()">Test Simple API</button>
     <button onclick="testHelloAPI()">Test Hello API</button>
+    <button onclick="testTranscriptTest()">Test Transcript Test</button>
+    <button onclick="testDirectPOST()">Test Direct POST</button>
     <button onclick="clearResults()">Clear Results</button>
     
     <div>
@@ -252,6 +254,69 @@
                 }
             } catch (error) {
                 log(`Hello API error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testTranscriptTest() {
+            log('Testing transcript test API (simplified version)...', 'loading');
+            
+            try {
+                const response = await fetch('/api/transcript_test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw'
+                    })
+                });
+                
+                log(`Transcript Test API status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                try {
+                    const data = await response.json();
+                    log(`Transcript Test API response: ${JSON.stringify(data)}`, 'success');
+                } catch (jsonError) {
+                    const textData = await response.text();
+                    log(`Transcript Test API is not JSON: ${textData.substring(0, 200)}...`, 'error');
+                }
+            } catch (error) {
+                log(`Transcript Test API error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testDirectPOST() {
+            log('Testing direct POST to transcript_v2 with minimal payload...', 'loading');
+            
+            try {
+                const response = await fetch('/api/transcript_v2', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw'
+                    })
+                });
+                
+                log(`Direct POST status: ${response.status}`, response.ok ? 'success' : 'error');
+                log(`Response headers: ${JSON.stringify([...response.headers.entries()])}`, 'info');
+                
+                const responseText = await response.text();
+                log(`Response body: ${responseText.substring(0, 300)}...`, 'info');
+                
+                if (responseText.includes('<!DOCTYPE') || responseText.includes('<html>')) {
+                    log('Response is HTML - this means the route is not working correctly', 'error');
+                } else {
+                    try {
+                        const data = JSON.parse(responseText);
+                        log(`Parsed response: ${JSON.stringify(data)}`, 'success');
+                    } catch (e) {
+                        log('Response is not valid JSON', 'error');
+                    }
+                }
+            } catch (error) {
+                log(`Direct POST error: ${error.message}`, 'error');
             }
         }
     </script>

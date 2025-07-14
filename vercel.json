@@ -1,22 +1,40 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/**/*.py", "use": "@vercel/python" },
-    { "src": "frontend/**", "use": "@vercel/static" }
+    {
+      "src": "api/hello.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/transcript_test.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/transcript_v2.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/test.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "frontend/**",
+      "use": "@vercel/static"
+    }
   ],
   "routes": [
-    { "src": "/api/hello", "dest": "/api/hello.py" },
-    { "src": "/api$", "dest": "/api/index.py" },
-    { "src": "/api/test", "dest": "/api/test.py" },
-    { "src": "/api/transcript_v2", "dest": "/api/transcript_v2.py" },
-    { "src": "/api/languages_v4", "dest": "/api/languages_v4.py" },
-    { "src": "/api/(.*)", "dest": "/api/$1.py" },
+    { "src": "/api/hello", "dest": "/api/hello" },
+    { "src": "/api/transcript_test", "dest": "/api/transcript_test" },
+    { "src": "/api/transcript_v2", "dest": "/api/transcript_v2" },
+    { "src": "/api/test", "dest": "/api/test" },
+    { "src": "/api$", "dest": "/api/index" },
     { "src": "/debug", "dest": "/frontend/debug.html" },
     { "src": "/", "dest": "/frontend/index.html" },
     { "src": "/(.*)\\.(.+)", "dest": "/frontend/$1.$2" },
     { "src": "/(.*)", "dest": "/frontend/$1" }
-  ],
-  "env": {
-    "PYTHONPATH": "."
-  }
+  ]
 }

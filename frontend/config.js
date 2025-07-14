@@ -10,8 +10,8 @@ window.CONFIG = {
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             return 'http://localhost:3002/api/transcript_v2';
         }
-        // If running on Vercel or other server, use relative paths
-        return '/api/transcript_v2';
+        // If running on Vercel or other server, temporarily use test endpoint
+        return '/api/transcript_test';  // Changed to test endpoint
     })(),
     helloApiUrl: '/api/hello',
     
