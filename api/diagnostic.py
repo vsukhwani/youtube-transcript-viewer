@@ -74,6 +74,7 @@ class handler(BaseHTTPRequestHandler):
                     
                     diagnostics['available_transcripts'] = available_transcripts
                     diagnostics['transcript_count'] = len(available_transcripts)
+                    diagnostics['list_transcripts_success'] = True
                     
                     # If transcripts are available, try to fetch one
                     if available_transcripts:
@@ -86,10 +87,25 @@ class handler(BaseHTTPRequestHandler):
                         except Exception as transcript_error:
                             diagnostics['first_transcript_success'] = False
                             diagnostics['first_transcript_error'] = str(transcript_error)
+                    else:
+                        diagnostics['no_transcripts_reason'] = 'No transcripts found in list'
                     
                 except Exception as list_error:
+                    diagnostics['list_transcripts_success'] = False
                     diagnostics['list_transcripts_error'] = str(list_error)
+                    diagnostics['list_transcripts_error_type'] = type(list_error).__name__
                     diagnostics['available_transcripts'] = []
+                    
+                    # Try direct get_transcript as fallback
+                    try:
+                        direct_transcript = YouTubeTranscriptApi.get_transcript(video_id)
+                        diagnostics['direct_transcript_success'] = True
+                        diagnostics['direct_transcript_entries'] = len(direct_transcript)
+                        diagnostics['direct_transcript_sample'] = direct_transcript[:2] if direct_transcript else []
+                    except Exception as direct_error:
+                        diagnostics['direct_transcript_success'] = False
+                        diagnostics['direct_transcript_error'] = str(direct_error)
+                        diagnostics['direct_transcript_error_type'] = type(direct_error).__name__
                     
             except ImportError as import_error:
                 diagnostics['library_imported'] = False

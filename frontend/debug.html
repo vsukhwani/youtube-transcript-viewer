@@ -336,25 +336,45 @@
                             log(`❌ Import Error: ${data.import_error}`, 'error');
                         }
                         
-                        if (data.available_transcripts) {
-                            log(`📝 Available transcripts: ${data.transcript_count}`, data.transcript_count > 0 ? 'success' : 'error');
+                        // Check list_transcripts results
+                        if (data.list_transcripts_success === true) {
+                            log(`✅ List transcripts: SUCCESS`, 'success');
+                            log(`📝 Available transcripts: ${data.transcript_count || 0}`, data.transcript_count > 0 ? 'success' : 'error');
                             
                             if (data.transcript_count > 0) {
                                 data.available_transcripts.forEach((transcript, index) => {
                                     log(`  ${index + 1}. Language: ${transcript.language} (${transcript.language_code}) - Generated: ${transcript.is_generated}`, 'info');
                                 });
-                                
-                                if (data.first_transcript_success) {
-                                    log(`✅ First transcript fetched successfully! Entries: ${data.first_transcript_entries}`, 'success');
-                                    if (data.first_transcript_sample) {
-                                        log(`📄 Sample: ${JSON.stringify(data.first_transcript_sample)}`, 'success');
-                                    }
-                                } else if (data.first_transcript_error) {
-                                    log(`❌ Failed to fetch first transcript: ${data.first_transcript_error}`, 'error');
-                                }
                             }
-                        } else if (data.list_transcripts_error) {
-                            log(`❌ Failed to list transcripts: ${data.list_transcripts_error}`, 'error');
+                        } else if (data.list_transcripts_success === false) {
+                            log(`❌ List transcripts: FAILED`, 'error');
+                            log(`❌ Error Type: ${data.list_transcripts_error_type}`, 'error');
+                            log(`❌ Error Message: ${data.list_transcripts_error}`, 'error');
+                            
+                            // Check if direct transcript worked
+                            if (data.direct_transcript_success === true) {
+                                log(`✅ Direct transcript: SUCCESS (bypass worked!)`, 'success');
+                                log(`📄 Direct entries: ${data.direct_transcript_entries}`, 'success');
+                            } else if (data.direct_transcript_success === false) {
+                                log(`❌ Direct transcript: FAILED`, 'error');
+                                log(`❌ Direct Error Type: ${data.direct_transcript_error_type}`, 'error');
+                                log(`❌ Direct Error: ${data.direct_transcript_error}`, 'error');
+                            }
+                        }
+                        
+                        if (data.available_transcripts && data.available_transcripts.length > 0) {
+                            if (data.first_transcript_success) {
+                                log(`✅ First transcript fetched successfully! Entries: ${data.first_transcript_entries}`, 'success');
+                                if (data.first_transcript_sample) {
+                                    log(`📄 Sample: ${JSON.stringify(data.first_transcript_sample)}`, 'success');
+                                }
+                            } else if (data.first_transcript_error) {
+                                log(`❌ Failed to fetch first transcript: ${data.first_transcript_error}`, 'error');
+                            }
+                        }
+                        
+                        if (data.no_transcripts_reason) {
+                            log(`ℹ️ ${data.no_transcripts_reason}`, 'error');
                         }
                         
                         if (data.general_error) {
